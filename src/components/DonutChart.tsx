@@ -61,7 +61,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
       
       <div className="flex items-center justify-center">
         <div className="relative">
-          <svg width="280" height="280" viewBox="0 0 100 100" className="transform -rotate-90">
+          <svg width="350" height="350" viewBox="0 0 100 100" className="transform -rotate-90 ">
             {data.map((item, index) => {
               const percentage = item.value / total;
               const startPercentage = cumulativePercentage;
@@ -93,7 +93,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
           </div>
         </div>
         
-        <div className="ml-6 space-y-2">
+        <div className="sm:mr-24 space-y-3 ">
           {data.map((item, index) => (
             <div key={index} className="flex items-center gap-2 group cursor-pointer hover:bg-opacity-10 hover:bg-gray-500 rounded p-1 transition-colors duration-200">
               <div
