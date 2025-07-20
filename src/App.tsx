@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import './gsap-init'; // Ensure GSAP is initialized first
 import { ThemeToggle } from './components/ThemeToggle';
 import { StatCard } from './components/StatCard';
@@ -14,9 +14,12 @@ import { useScrollSmoother } from './hooks/useScrollSmoother';
 function App() {
   const [activeTab, setActiveTab] = useState('Day');
   const [isDark, setIsDark] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const { containerRef } = useScrollSmoother();
 
-  const chartData = [
+  // Base chart data with 3-hour intervals
+  const baseChartData = [
     { label: '00:00', checkins: 8, checkouts: 12 },
     { label: '03:00', checkins: 15, checkouts: 18 },
     { label: '06:00', checkins: 12, checkouts: 8 },
@@ -27,6 +30,63 @@ function App() {
     { label: '21:00', checkins: 23, checkouts: 25 },
     { label: '23:59', checkins: 5, checkouts: 8 }
   ];
+
+  // Filter chart data based on selected tab and custom range
+  const chartData = useMemo(() => {
+    if (activeTab === 'Custom Range' && startDate && endDate) {
+      // For custom range, we'll simulate different data based on the date range
+      // In a real application, you would fetch data for the specific date range
+      const daysDiff = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Multiply base data by number of days to simulate aggregated data
+      return baseChartData.map(item => ({
+        ...item,
+        checkins: Math.round(item.checkins * daysDiff * (0.8 + Math.random() * 0.4)), // Add some variation
+        checkouts: Math.round(item.checkouts * daysDiff * (0.8 + Math.random() * 0.4))
+      }));
+    } else if (activeTab === 'Week') {
+      // For week view, multiply by 7 days
+      return baseChartData.map(item => ({
+        ...item,
+        checkins: Math.round(item.checkins * 7 * (0.9 + Math.random() * 0.2)),
+        checkouts: Math.round(item.checkouts * 7 * (0.9 + Math.random() * 0.2))
+      }));
+    } else if (activeTab === 'Month') {
+      // For month view, multiply by 30 days
+      return baseChartData.map(item => ({
+        ...item,
+        checkins: Math.round(item.checkins * 30 * (0.9 + Math.random() * 0.2)),
+        checkouts: Math.round(item.checkouts * 30 * (0.9 + Math.random() * 0.2))
+      }));
+    }
+    
+    // Default day view
+    return baseChartData;
+  }, [activeTab, startDate, endDate]);
+
+  // Handle tab change
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    // Reset custom dates when switching away from custom range
+    if (tab !== 'Custom Range') {
+      setStartDate('');
+      setEndDate('');
+    }
+  };
+
+  // Handle start date change
+  const handleStartDateChange = (date: string) => {
+    setStartDate(date);
+    // If end date is before start date, reset end date
+    if (endDate && date > endDate) {
+      setEndDate('');
+    }
+  };
+
+  // Handle end date change
+  const handleEndDateChange = (date: string) => {
+    setEndDate(date);
+  };
 
   const purposeData = [
     { label: 'Business Meeting', value: 142, color: '#3B82F6' },
@@ -143,7 +203,7 @@ function App() {
     <div 
       ref={containerRef}
       className={`h-screen overflow-hidden ${
-        isDark ? 'bg-gray-900' : 'bg-gray-50'
+      isDark ? 'bg-gray-900' : 'bg-gray-50'
       }`}
     >
       <div className="smooth-content">
@@ -153,241 +213,98 @@ function App() {
         }`}>
           <div className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <h1 className={`text-3xl font-bold mb-2 ${
-                  isDark ? 'text-white' : 'text-gray-900'
-                }`}>Visitor Management Overview</h1>
-                <p className={`${
-                  isDark ? 'text-gray-400' : 'text-gray-600'
-                }`}>Real-time visitor tracking and analytics</p>
-              </div>
+          <div>
+                <button className={`text-sm bg-blue-500 text-white px-4 py-2 rounded-md font-bold mb-2 ${
+              isDark ? 'text-white' : 'text-gray-900'
+                }`}>Go Back</button>
+            <p className={`${
+              isDark ? 'text-gray-400' : 'text-gray-600'
+            }`}>Real-time visitor tracking and analytics</p>
+          </div>
+                    {/* Tab Filter */}
+                            <div className="sticky flex flex-col lg:flex-row gap-3 z-40">
+            <TabFilter 
+              activeTab={activeTab} 
+              onTabChange={handleTabChange} 
+              isDark={isDark}
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={handleStartDateChange}
+              onEndDateChange={handleEndDateChange}
+            />
+          
               <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
         <div className="p-6 space-y-8">
-          {/* Tab Filter */}
-          <div className="sticky top-24 z-40">
-            <TabFilter activeTab={activeTab} onTabChange={setActiveTab} isDark={isDark} />
-          </div>
+    
+          
 
-          {/* Stats Cards */}
+        {/* Stats Cards */}
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard
-              title="Total Employees"
-              value="847"
-              change="+12"
-              isPositive={true}
-              isDark={isDark}
-            />
-            <StatCard
-              title="Pre-registered Visitors"
-              value="156"
-              change="+8.3%"
-              isPositive={true}
-              isDark={isDark}
-            />
-            <StatCard
-              title="Currently Checked-in"
-              value="89"
-              change="+15"
-              isPositive={true}
-              isDark={isDark}
-            />
-            <StatCard
-              title="Today's Check-outs"
-              value="234"
-              change="-5.2%"
-              isPositive={false}
-              isDark={isDark}
-            />
+          <StatCard
+            title="Total Employees"
+            value="847"
+            change="+12"
+            isPositive={true}
+            isDark={isDark}
+          />
+          <StatCard
+            title="Pre-registered Visitors"
+            value="156"
+            change="+8.3%"
+            isPositive={true}
+            isDark={isDark}
+          />
+          <StatCard
+            title="Currently Checked-in"
+            value="89"
+            change="+15"
+            isPositive={true}
+            isDark={isDark}
+          />
+          <StatCard
+            title="Today's Check-outs"
+            value="234"
+            change="-5.2%"
+            isPositive={false}
+            isDark={isDark}
+          />
           </section>
 
           {/* Charts Row */}
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <BarChart data={chartData} isDark={isDark} />
-            <DonutChart data={purposeData} isDark={isDark} />
-            <DepartmentChart data={departmentData} isDark={isDark} />
+          
+                                  <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              <div className="md:col-span-1 lg:col-span-2">
+                <BarChart 
+                  data={chartData} 
+                  isDark={isDark} 
+                  startDate={startDate}
+                  endDate={endDate}
+                  activeTab={activeTab}
+                />
+              </div>
+              <div className="md:col-span-1 lg:col-span-1">
+                <DonutChart data={purposeData} isDark={isDark} />
+              </div>
+              <div className="md:col-span-1 lg:col-span-1">
+                <DepartmentChart data={departmentData} isDark={isDark} />
+              </div>
           </section>
 
           {/* Tables and Alerts Row */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <AlertCard alerts={alerts} isDark={isDark} />
-            <PendingCheckoutTable data={pendingCheckouts} isDark={isDark} />
-            <ExpectedVisitorTable data={expectedVisitorsData} isDark={isDark} />
+          <AlertCard alerts={alerts} isDark={isDark} />
+          <PendingCheckoutTable data={pendingCheckouts} isDark={isDark} />
+          <ExpectedVisitorTable data={expectedVisitorsData} isDark={isDark} />
           </section>
 
           {/* Additional Analytics Section */}
-          <section className={`rounded-lg shadow-sm border p-6 ${
-            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-          }`}>
-            <h2 className={`text-xl font-semibold mb-4 ${
-              isDark ? 'text-white' : 'text-gray-900'
-            }`}>Weekly Analytics Summary</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className={`p-4 rounded-lg ${
-                isDark ? 'bg-gray-700' : 'bg-gray-50'
-              }`}>
-                <h3 className={`font-medium mb-2 ${
-                  isDark ? 'text-gray-300' : 'text-gray-700'
-                }`}>Peak Hours</h3>
-                <p className={`text-2xl font-bold ${
-                  isDark ? 'text-blue-400' : 'text-blue-600'
-                }`}>12:00 - 15:00</p>
-                <p className={`text-sm ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`}>Highest visitor traffic</p>
-              </div>
-              <div className={`p-4 rounded-lg ${
-                isDark ? 'bg-gray-700' : 'bg-gray-50'
-              }`}>
-                <h3 className={`font-medium mb-2 ${
-                  isDark ? 'text-gray-300' : 'text-gray-700'
-                }`}>Average Stay</h3>
-                <p className={`text-2xl font-bold ${
-                  isDark ? 'text-green-400' : 'text-green-600'
-                }`}>2.5 hrs</p>
-                <p className={`text-sm ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`}>Typical visit duration</p>
-              </div>
-              <div className={`p-4 rounded-lg ${
-                isDark ? 'bg-gray-700' : 'bg-gray-50'
-              }`}>
-                <h3 className={`font-medium mb-2 ${
-                  isDark ? 'text-gray-300' : 'text-gray-700'
-                }`}>Security Alerts</h3>
-                <p className={`text-2xl font-bold ${
-                  isDark ? 'text-red-400' : 'text-red-600'
-                }`}>3</p>
-                <p className={`text-sm ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`}>Active alerts today</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Recent Activity Section */}
-          <section className={`rounded-lg shadow-sm border p-6 ${
-            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-          }`}>
-            <h2 className={`text-xl font-semibold mb-4 ${
-              isDark ? 'text-white' : 'text-gray-900'
-            }`}>Recent Activity</h2>
-            <div className="space-y-3">
-              {[
-                { time: '2 min ago', action: 'VIP visitor checked in', user: 'John Smith' },
-                { time: '5 min ago', action: 'Meeting room booked', user: 'Marketing Team' },
-                { time: '8 min ago', action: 'Visitor checked out', user: 'Sarah Johnson' },
-                { time: '12 min ago', action: 'New visitor registered', user: 'Tech Solutions' },
-                { time: '15 min ago', action: 'Security alert resolved', user: 'Security Team' }
-              ].map((activity, index) => (
-                <div key={index} className={`flex items-center justify-between p-3 rounded-lg ${
-                  isDark ? 'bg-gray-700' : 'bg-gray-50'
-                }`}>
-                  <div>
-                    <p className={`font-medium ${
-                      isDark ? 'text-white' : 'text-gray-900'
-                    }`}>{activity.action}</p>
-                    <p className={`text-sm ${
-                      isDark ? 'text-gray-400' : 'text-gray-500'
-                    }`}>{activity.user}</p>
-                  </div>
-                  <span className={`text-xs ${
-                    isDark ? 'text-gray-500' : 'text-gray-400'
-                  }`}>{activity.time}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Additional sections for more scrollable content */}
-          <section className={`rounded-lg shadow-sm border p-6 ${
-            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-          }`}>
-            <h2 className={`text-xl font-semibold mb-4 ${
-              isDark ? 'text-white' : 'text-gray-900'
-            }`}>Security Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className={`p-4 rounded-lg ${
-                isDark ? 'bg-gray-700' : 'bg-gray-50'
-              }`}>
-                <h3 className={`font-medium mb-2 ${
-                  isDark ? 'text-gray-300' : 'text-gray-700'
-                }`}>Access Points</h3>
-                <p className={`text-2xl font-bold ${
-                  isDark ? 'text-blue-400' : 'text-blue-600'
-                }`}>12 Active</p>
-                <p className={`text-sm ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`}>All systems operational</p>
-              </div>
-              <div className={`p-4 rounded-lg ${
-                isDark ? 'bg-gray-700' : 'bg-gray-50'
-              }`}>
-                <h3 className={`font-medium mb-2 ${
-                  isDark ? 'text-gray-300' : 'text-gray-700'
-                }`}>Incidents</h3>
-                <p className={`text-2xl font-bold ${
-                  isDark ? 'text-green-400' : 'text-green-600'
-                }`}>0 Today</p>
-                <p className={`text-sm ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`}>No security issues</p>
-              </div>
-            </div>
-          </section>
-
-          <section className={`rounded-lg shadow-sm border p-6 ${
-            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-          }`}>
-            <h2 className={`text-xl font-semibold mb-4 ${
-              isDark ? 'text-white' : 'text-gray-900'
-            }`}>Facility Status</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className={`p-4 rounded-lg ${
-                isDark ? 'bg-gray-700' : 'bg-gray-50'
-              }`}>
-                <h3 className={`font-medium mb-2 ${
-                  isDark ? 'text-gray-300' : 'text-gray-700'
-                }`}>Meeting Rooms</h3>
-                <p className={`text-2xl font-bold ${
-                  isDark ? 'text-blue-400' : 'text-blue-600'
-                }`}>8/12 Occupied</p>
-                <p className={`text-sm ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`}>67% capacity</p>
-              </div>
-              <div className={`p-4 rounded-lg ${
-                isDark ? 'bg-gray-700' : 'bg-gray-50'
-              }`}>
-                <h3 className={`font-medium mb-2 ${
-                  isDark ? 'text-gray-300' : 'text-gray-700'
-                }`}>Parking</h3>
-                <p className={`text-2xl font-bold ${
-                  isDark ? 'text-green-400' : 'text-green-600'
-                }`}>45 Available</p>
-                <p className={`text-sm ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`}>Visitor parking</p>
-              </div>
-              <div className={`p-4 rounded-lg ${
-                isDark ? 'bg-gray-700' : 'bg-gray-50'
-              }`}>
-                <h3 className={`font-medium mb-2 ${
-                  isDark ? 'text-gray-300' : 'text-gray-700'
-                }`}>WiFi Usage</h3>
-                <p className={`text-2xl font-bold ${
-                  isDark ? 'text-purple-400' : 'text-purple-600'
-                }`}>89 Active</p>
-                <p className={`text-sm ${
-                  isDark ? 'text-gray-400' : 'text-gray-500'
-                }`}>Guest network</p>
-              </div>
-            </div>
-          </section>
+          
         </div>
       </div>
     </div>

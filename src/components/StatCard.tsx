@@ -21,21 +21,21 @@ export const StatCard: React.FC<StatCardProps> = ({ title, value, change, isPosi
             isDark ? 'text-gray-400' : 'text-gray-600'
           }`}>{title}</p>
           <p className={`text-2xl font-bold mt-1 ${
-            isDark ? 'text-white' : 'text-gray-900'
+          isDark ? 'text-white' : 'text-gray-900'
           }`}>{value}</p>
         </div>
         <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-          isPositive
+            isPositive 
             ? isDark 
               ? 'bg-green-900/50 text-green-400' 
               : 'bg-green-100 text-green-700'
             : isDark 
               ? 'bg-red-900/50 text-red-400' 
               : 'bg-red-100 text-red-700'
-        }`}>
+          }`}>
           <span>{isPositive ? '↗' : '↘'}</span>
-          <span>{change}</span>
-        </div>
+            <span>{change}</span>
+          </div>
       </div>
     </div>
   );

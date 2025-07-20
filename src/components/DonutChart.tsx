@@ -61,7 +61,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
       
       <div className="flex items-center justify-center">
         <div className="relative">
-          <svg width="350" height="350" viewBox="0 0 100 100" className="transform -rotate-90 ">
+          <svg width="350" height="350" viewBox="0 20 100 100" className="transform -rotate-90 ">
             {data.map((item, index) => {
               const percentage = item.value / total;
               const startPercentage = cumulativePercentage;
@@ -72,7 +72,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
                 <path
                   d={generatePath(percentage, startPercentage)}
                   fill={item.color}
-                  className="hover:opacity-80 transition-opacity duration-200"
+                  className="hover:opacity-80  transition-opacity duration-200"
                 />
                   <title>{`${item.label}: ${item.value} visitors (${Math.round(percentage * 100)}%)`}</title>
                 </g>
@@ -81,7 +81,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
             <circle cx="50" cy="50" r="14" fill={isDark ? '#1F2937' : 'white'} />
           </svg>
           
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute right-36 inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className={`text-2xl font-bold ${
                 isDark ? 'text-white' : 'text-gray-900'
@@ -93,26 +93,26 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
           </div>
         </div>
         
-        <div className="sm:mr-24 space-y-3 ">
+        <div className="sm:mr-10 absolute right-80 lg:right-80 xl:right-80 space-y-3 ">
           {data.map((item, index) => (
-            <div key={index} className="flex items-center gap-2 group cursor-pointer hover:bg-opacity-10 hover:bg-gray-500 rounded p-1 transition-colors duration-200">
+            <div key={index} className="flex  items-center gap-2 group cursor-pointer hover:bg-opacity-10 hover:bg-gray-500 rounded p-1 transition-colors duration-200">
               <div
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: item.color }}
               ></div>
-              <div className="flex-1">
-                <div className={`text-sm font-medium ${
+              <div className="flex-1 min-w-0">
+                <div className={`text-sm font-medium break-words max-w-24 ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}>{item.label}</div>
                 <div className={`text-xs ${
                   isDark ? 'text-gray-400' : 'text-gray-500'
                 }`}>{item.value} visitors</div>
               </div>
-              <div className={`text-sm font-medium ${
+              {/* <div className={`text-sm font-medium ${
                 isDark ? 'text-white' : 'text-gray-900'
               }`}>
                 {Math.round((item.value / total) * 100)}%
-              </div>
+              </div> */}
               <div className="absolute left-full ml-2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
                 {item.label}: {item.value} visitors ({Math.round((item.value / total) * 100)}%)
               </div>
