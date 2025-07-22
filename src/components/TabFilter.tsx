@@ -153,7 +153,7 @@ export const TabFilter: React.FC<TabFilterProps> = ({
     
     days.push(
       <button
-        key={day}
+        key={`${currentMonth.getFullYear()}-${currentMonth.getMonth()}-${day}`}
         onClick={() => handleDateClick(date)}
         className={`h-6 w-6 rounded-full text-xs font-medium transition-all duration-200 relative ${
           isSelected
@@ -292,8 +292,8 @@ export const TabFilter: React.FC<TabFilterProps> = ({
               <div className="p-3">
                 {/* Day Headers */}
                 <div className="grid grid-cols-7 gap-0.5 mb-2">
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
-                    <div key={day} className={`h-5 flex items-center justify-center text-xs font-medium ${
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                    <div key={`header-${index}`} className={`h-5 flex items-center justify-center text-xs font-medium ${
                       isDark ? 'text-gray-400' : 'text-gray-500'
                     }`}>
                       {day}

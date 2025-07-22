@@ -48,14 +48,26 @@ export const BarChart: React.FC<BarChartProps> = ({ data, isDark, startDate, end
     );
   }
 
-  // Generate Y-axis labels
-  const yAxisLabels = [];
-  const step = Math.ceil(maxValue / 5);
-  for (let i = 0; i <= maxValue; i += step) {
+  // Generate Y-axis labels with proper scaling and consistent steps
+  const yAxisLabels: number[] = [];
+  
+  // Calculate a nice step size that creates readable intervals
+  const maxValueForAxis = Math.max(Math.ceil(maxValue * 1.1), 10); // Add 10% padding, minimum 10
+  
+  // Create consistent step pattern with minimum step of 1
+  const step = Math.max(Math.ceil(maxValueForAxis / 5), 1);
+  
+  // Generate labels with consistent step pattern starting from 0
+  for (let i = 0; i <= maxValueForAxis; i += step) {
     yAxisLabels.push(i);
   }
+  
+  // If the last step doesn't reach the max value, add one more step
+  if (yAxisLabels.length > 0 && yAxisLabels[yAxisLabels.length - 1] < maxValueForAxis) {
+    yAxisLabels.push(yAxisLabels[yAxisLabels.length - 1] + step);
+  }
 
-  const chartHeight = 260; // Reduced height to match donut charts
+  const chartHeight = 220; // Reduced height to match donut charts
 
   // Format date range for display
   const getSubtitle = () => {
@@ -108,7 +120,7 @@ export const BarChart: React.FC<BarChartProps> = ({ data, isDark, startDate, end
         <h3 className={`text-lg font-semibold ${
           isDark ? 'text-white' : 'text-gray-900'
           }`}>Visitor Traffic Analytics</h3>
-          <p className={`text-sm ${
+          <p className={`text-sm mb-10 ${
             isDark ? 'text-gray-400' : 'text-gray-500'
           }`}>{getSubtitle()}</p>
         </div>
@@ -163,9 +175,10 @@ export const BarChart: React.FC<BarChartProps> = ({ data, isDark, startDate, end
         {/* Chart bars */}
         <div className="ml-12 h-full flex items-end justify-between gap-1">
           {data.map((item, index) => {
-            // Calculate bar heights in pixels
-            const checkinsHeightPx = Math.max((item.checkins / maxValue) * chartHeight, 6);
-            const checkoutsHeightPx = Math.max((item.checkouts / maxValue) * chartHeight, 6);
+            // Calculate bar heights in pixels using the axis maximum value
+            const maxAxisValue = Math.max(...yAxisLabels);
+            const checkinsHeightPx = Math.max((item.checkins / maxAxisValue) * chartHeight, 6);
+            const checkoutsHeightPx = Math.max((item.checkouts / maxAxisValue) * chartHeight, 6);
             
             return (
               <div key={index} className="flex flex-col items-center flex-1 group relative">

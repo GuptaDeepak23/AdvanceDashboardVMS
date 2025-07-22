@@ -23,7 +23,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
 
   if (data.length === 0 || total === 0) {
     return (
-      <div className={`rounded-lg shadow-sm border p-4 ${
+      <div className={`rounded-lg shadow-sm border p-4  ${
         isDark 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
@@ -93,7 +93,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
         isDark ? 'text-white' : 'text-gray-900'
       }`}>Visitor Purposes</h3>
       
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center" style={{ height: '366px' }}>
           {/* Fixed Donut Chart at top center */}
           <div className="relative flex-shrink-0 mb-1">
             <svg className="w-56 h-56 transform -rotate-90" viewBox="0 0 100 100">
@@ -132,7 +132,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
           </div>
           
           {/* Scrollable Legend below the chart */}
-          <div className="w-full max-h-32 overflow-y-auto legend-scrollbar">
+          <div className="w-full flex-1 overflow-y-auto legend-scrollbar">
             <div className="grid grid-cols-1 gap-1 w-full pr-2">
               {data.map((item, index) => (
                 <div key={index} className="flex items-center gap-2 group cursor-pointer hover:bg-opacity-10 hover:bg-gray-500 rounded p-1 transition-colors duration-200">

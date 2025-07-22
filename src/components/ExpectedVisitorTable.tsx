@@ -68,7 +68,7 @@ export const ExpectedVisitorTable: React.FC<ExpectedVisitorTableProps> = ({ data
       )}
       
       {filteredData.length > 0 && (
-        <div className="overflow-x-auto relative">
+        <div className="overflow-x-hidden relative">
         <table className="w-full text-sm">
           <thead>
             <tr className={`border-b ${
@@ -80,9 +80,6 @@ export const ExpectedVisitorTable: React.FC<ExpectedVisitorTableProps> = ({ data
               <th className={`text-left py-3 px-2 font-medium ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
               }`}>Guest Name</th>
-              <th className={`text-left py-3 px-2 font-medium ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}>Company</th>
               <th className={`text-left py-3 px-2 font-medium ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
               }`}>Host Name</th>
@@ -107,9 +104,7 @@ export const ExpectedVisitorTable: React.FC<ExpectedVisitorTableProps> = ({ data
                 <td className={`py-3 px-2 ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}>{item.guestName}</td>
-                <td className={`py-3 px-2 ${
-                  isDark ? 'text-gray-300' : 'text-gray-600'
-                }`}>{item.company}</td>
+                
                 <td className={`py-3 px-2 ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}>{item.hostName}</td>

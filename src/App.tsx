@@ -208,34 +208,44 @@ function App() {
     >
       <div className="smooth-content">
         {/* Fixed Header */}
-        <div className={`sticky top-0 z-50 h-24 backdrop-blur-md border-b ${
+        <div className={`sticky top-0 z-50 h-20 backdrop-blur-md border-b ${
           isDark ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'
         }`}>
-          <div className="p-6">
-            <div className="flex items-center justify-between">
-          <div className='flex  gap-4 items-center'>
-                <button className={`text-sm bg-blue-500 text-white px-4 py-2 rounded-md font-bold mb-2 ${
-              isDark ? 'text-white' : 'text-gray-900'
-                }`}>Go Back</button>
+          <div className="p-6  h-full">
+            <div className="flex items-center justify-between h-full">
+              {/* Left Section */}
+              <div className="flex items-center gap-4">
+                <button className={`text-sm bg-blue-500 text-white px-2 py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex items-center gap-2 ${
+                  isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
+                }`}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Go Back
+                </button>
+              </div>
 
-<p className={`${
-              isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}>Real-time visitor tracking and analytics</p>
-           
-          </div>
-                    {/* Tab Filter */}
-                            <div className="sticky flex flex-col lg:flex-row gap-3 z-40">
-            <TabFilter 
-              activeTab={activeTab} 
-              onTabChange={handleTabChange} 
-              isDark={isDark}
-              startDate={startDate}
-              endDate={endDate}
-              onStartDateChange={handleStartDateChange}
-              onEndDateChange={handleEndDateChange}
-            />
-          
-              <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
+              {/* Center Section - Title */}
+              <div className="flex-1 flex transform translate-x-2  ">
+                <h1 className={`text-lg font-semibold ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}>
+                  Real-time visitor tracking and analytics
+                </h1>
+              </div>
+
+              {/* Right Section - Filters and Theme Toggle */}
+              <div className="flex items-center gap-4">
+                <TabFilter 
+                  activeTab={activeTab} 
+                  onTabChange={handleTabChange} 
+                  isDark={isDark}
+                  startDate={startDate}
+                  endDate={endDate}
+                  onStartDateChange={handleStartDateChange}
+                  onEndDateChange={handleEndDateChange}
+                />
+                <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
               </div>
             </div>
           </div>

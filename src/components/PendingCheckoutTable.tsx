@@ -66,7 +66,7 @@ export const PendingCheckoutTable: React.FC<PendingCheckoutTableProps> = ({ data
       )}
       
       {filteredData.length > 0 && (
-        <div className="overflow-x-auto relative">
+        <div className="overflow-x-hidden relative">
         <table className="w-full text-sm">
           <thead>
             <tr className={`border-b ${
