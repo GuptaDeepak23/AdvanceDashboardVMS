@@ -21,7 +21,7 @@ body {
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -48,6 +48,33 @@ body {
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+/* Slim scrollbar for legend */
+.legend-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.legend-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.legend-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 2px;
+}
+
+.legend-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Dark mode slim scrollbar for legend */
+.dark .legend-scrollbar::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+.dark .legend-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 /* Ensure smooth transitions */

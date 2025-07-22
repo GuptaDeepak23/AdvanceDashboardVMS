@@ -27,7 +27,7 @@ function App() {
     { label: '12:00', checkins: 67, checkouts: 58 },
     { label: '15:00', checkins: 52, checkouts: 48 },
     { label: '18:00', checkins: 38, checkouts: 40 },
-    { label: '21:00', checkins: 23, checkouts: 25 },
+    { label: '21:00', checkins: 23, checkouts: 20 },
     { label: '23:59', checkins: 5, checkouts: 8 }
   ];
 
@@ -208,18 +208,20 @@ function App() {
     >
       <div className="smooth-content">
         {/* Fixed Header */}
-        <div className={`sticky top-0 z-50 backdrop-blur-md border-b ${
+        <div className={`sticky top-0 z-50 h-24 backdrop-blur-md border-b ${
           isDark ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'
         }`}>
           <div className="p-6">
             <div className="flex items-center justify-between">
-          <div>
+          <div className='flex  gap-4 items-center'>
                 <button className={`text-sm bg-blue-500 text-white px-4 py-2 rounded-md font-bold mb-2 ${
               isDark ? 'text-white' : 'text-gray-900'
                 }`}>Go Back</button>
-            <p className={`${
+
+<p className={`${
               isDark ? 'text-gray-400' : 'text-gray-600'
             }`}>Real-time visitor tracking and analytics</p>
+           
           </div>
                     {/* Tab Filter */}
                             <div className="sticky flex flex-col lg:flex-row gap-3 z-40">
@@ -240,7 +242,7 @@ function App() {
         </div>
 
         {/* Main Content */}
-        <div className="p-6 space-y-8">
+        <div className="p-6 space-y-6">
     
           
 
@@ -249,8 +251,7 @@ function App() {
           <StatCard
             title="Total Employees"
             value="847"
-            change="+12"
-            isPositive={true}
+            showChange={false}
             isDark={isDark}
           />
           <StatCard
@@ -276,7 +277,7 @@ function App() {
           />
           </section>
 
-          {/* Charts Row */}
+
           
                                   <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
               <div className="md:col-span-1 lg:col-span-2">

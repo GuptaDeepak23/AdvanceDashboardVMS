@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface BarChartProps {
   data: Array<{
@@ -13,6 +13,14 @@ interface BarChartProps {
 }
 
 export const BarChart: React.FC<BarChartProps> = ({ data, isDark, startDate, endDate, activeTab }) => {
+  const [tooltip, setTooltip] = useState<{
+    show: boolean;
+    content: string;
+    x: number;
+    y: number;
+    showAbove: boolean;
+  }>({ show: false, content: '', x: 0, y: 0, showAbove: true });
+
   const maxValue = Math.max(...data.flatMap(d => [d.checkins, d.checkouts]));
 
   if (data.length === 0) {
@@ -47,7 +55,7 @@ export const BarChart: React.FC<BarChartProps> = ({ data, isDark, startDate, end
     yAxisLabels.push(i);
   }
 
-  const chartHeight = 270; // Increased height for larger bars
+  const chartHeight = 260; // Reduced height to match donut charts
 
   // Format date range for display
   const getSubtitle = () => {
@@ -63,13 +71,39 @@ export const BarChart: React.FC<BarChartProps> = ({ data, isDark, startDate, end
     return '3-Hour Interval Analysis';
   };
 
+  const handleMouseEnter = (e: React.MouseEvent, item: any) => {
+    const content = `Check-ins: ${item.checkins} | Check-outs: ${item.checkouts}`;
+    
+    setTooltip({
+      show: true,
+      content,
+      x: e.clientX,
+      y: e.clientY,
+      showAbove: false
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTooltip({ show: false, content: '', x: 0, y: 0, showAbove: true });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (tooltip.show) {
+      setTooltip(prev => ({
+        ...prev,
+        x: e.clientX,
+        y: e.clientY
+      }));
+    }
+  };
+
   return (
-    <div className={`rounded-lg shadow-sm border p-6 ${
+    <div className={`rounded-lg shadow-sm border p-4 ${
       isDark 
         ? 'bg-gray-800 border-gray-700' 
         : 'bg-white border-gray-100'
     }`}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div>
         <h3 className={`text-lg font-semibold ${
           isDark ? 'text-white' : 'text-gray-900'
@@ -139,78 +173,114 @@ export const BarChart: React.FC<BarChartProps> = ({ data, isDark, startDate, end
                 <div className="flex items-end gap-1 w-full h-full">
                   {/* Check-ins Bar */}
                   <div className="flex flex-col items-center flex-1 relative">
-                <div
+                    <div
                       className={`w-full rounded-t transition-all duration-300 hover:opacity-80 cursor-pointer ${
-                    isDark 
-                      ? 'bg-blue-400 hover:bg-blue-300' 
-                      : 'bg-blue-500 hover:bg-blue-600'
-                  }`}
+                        isDark 
+                          ? 'bg-blue-400 hover:bg-blue-300' 
+                          : 'bg-blue-500 hover:bg-blue-600'
+                      }`}
                       style={{ 
                         height: `${checkinsHeightPx}px`,
                         boxShadow: isDark ? '0 2px 4px rgba(59, 130, 246, 0.3)' : '0 2px 4px rgba(59, 130, 246, 0.2)'
                       }}
-                ></div>
-                    {/* Tooltip */}
-                    <div className={`absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 rounded text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10 ${
-                      isDark ? 'bg-gray-900 text-white border border-gray-700' : 'bg-gray-800 text-white border border-gray-600'
-                    }`}>
-                  Check-ins: {item.checkins}
-                </div>
-              </div>
+                      onMouseEnter={(e) => handleMouseEnter(e, item)}
+                      onMouseLeave={handleMouseLeave}
+                      onMouseMove={handleMouseMove}
+                    ></div>
+                  </div>
                   
                   {/* Check-outs Bar */}
                   <div className="flex flex-col items-center flex-1 relative">
-                <div
+                    <div
                       className={`w-full rounded-t transition-all duration-300 hover:opacity-80 cursor-pointer ${
-                    isDark 
-                      ? 'bg-green-400 hover:bg-green-300' 
-                      : 'bg-green-500 hover:bg-green-600'
-                  }`}
+                        isDark 
+                          ? 'bg-green-400 hover:bg-green-300' 
+                          : 'bg-green-500 hover:bg-green-600'
+                      }`}
                       style={{ 
                         height: `${checkoutsHeightPx}px`,
                         boxShadow: isDark ? '0 2px 4px rgba(16, 185, 129, 0.3)' : '0 2px 4px rgba(16, 185, 129, 0.2)'
                       }}
-                ></div>
-                    {/* Tooltip */}
-                    <div className={`absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 rounded text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10 ${
-                      isDark ? 'bg-gray-900 text-white border border-gray-700' : 'bg-gray-800 text-white border border-gray-600'
-                    }`}>
-                  Check-outs: {item.checkouts}
+                      onMouseEnter={(e) => handleMouseEnter(e, item)}
+                      onMouseLeave={handleMouseLeave}
+                      onMouseMove={handleMouseMove}
+                    ></div>
+                  </div>
                 </div>
-              </div>
-            </div>
                 
                 {/* X-axis labels - Only time labels, no data values */}
                 <div className="mt-1 text-center">
                   <span className={`text-xs font-medium ${
-              isDark ? 'text-gray-300' : 'text-gray-600'
-            }`}>{item.label}</span>
-          </div>
+                    isDark ? 'text-gray-300' : 'text-gray-600'
+                  }`}>{item.label}</span>
+                </div>
               </div>
             );
           })}
         </div>
       </div>
       
-      {/* Chart footer */}
+      {/* Enhanced Chart footer with prominent stats */}
       <div className={`mt-3 pt-3 border-t ${
         isDark ? 'border-gray-700' : 'border-gray-200'
       }`}>
-        <div className="flex justify-between items-center text-xs">
-          <span className={`${
-            isDark ? 'text-gray-400' : 'text-gray-500'
+        <div className="grid grid-cols-2 gap-4">
+          {/* Total Visitors Today */}
+          <div className={`p-3 rounded-lg ${
+            isDark ? 'bg-blue-900/20 border border-blue-800/30' : 'bg-blue-50 border border-blue-200'
           }`}>
-            Total Visitors {activeTab === 'Custom Range' && startDate && endDate ? 'in Range' : 'Today'}: {data.reduce((sum, item) => sum + item.checkins + item.checkouts, 0)}
-          </span>
-          <span className={`${
-            isDark ? 'text-gray-400' : 'text-gray-500'
+            <div className="flex items-center justify-between">
+              <div className={`text-sm font-medium ${
+                isDark ? 'text-blue-300' : 'text-blue-600'
+              }`}>
+                Total Visitors {activeTab === 'Custom Range' && startDate && endDate ? 'in Range' : 'Today'}
+              </div>
+              <div className={`text-lg font-bold ${
+                isDark ? 'text-blue-100' : 'text-blue-900'
+              }`}>
+                {data.reduce((sum, item) => sum + item.checkins + item.checkouts, 0)}
+              </div>
+            </div>
+          </div>
+          
+          {/* Peak Time */}
+          <div className={`p-3 rounded-lg ${
+            isDark ? 'bg-green-900/20 border border-green-800/30' : 'bg-green-50 border border-green-200'
           }`}>
-            Peak Time: {data.reduce((max, item) => 
-              (item.checkins + item.checkouts) > (max.checkins + max.checkouts) ? item : max
-            ).label}
-          </span>
+            <div className="flex items-center justify-between">
+              <div className={`text-sm font-medium ${
+                isDark ? 'text-green-300' : 'text-green-600'
+              }`}>
+                Peak Time
+              </div>
+              <div className={`text-lg font-bold ${
+                isDark ? 'text-green-100' : 'text-green-900'
+              }`}>
+                {data.reduce((max, item) => 
+                  (item.checkins + item.checkouts) > (max.checkins + max.checkouts) ? item : max
+                ).label}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Single Tooltip */}
+      {tooltip.show && (
+        <div 
+          className={`fixed text-xs px-3 py-2 rounded-lg shadow-xl z-50 pointer-events-none border backdrop-blur-sm ${
+            isDark 
+              ? 'bg-gray-900/95 text-gray-100 border-gray-700 shadow-gray-900/50' 
+              : 'bg-white/95 text-gray-800 border-gray-200 shadow-gray-500/30'
+          }`}
+          style={{
+            left: tooltip.x + 10,
+            top: tooltip.y - 10
+          }}
+        >
+          <div className="font-medium">{tooltip.content}</div>
+        </div>
+      )}
     </div>
   );
 };
