@@ -13,6 +13,7 @@
     "@rollup/rollup-win32-x64-msvc": "^4.45.1",
     "gsap": "^3.13.0",
     "lucide-react": "^0.344.0",
+    "masonry-layout": "^4.2.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scroll": "^1.9.3",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
+    "@types/masonry-layout": "^4.2.8",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './gsap-init'; // Ensure GSAP is initialized first
 import { ThemeToggle } from './components/ThemeToggle';
 import { StatCard } from './components/StatCard';
@@ -10,6 +10,7 @@ import { DepartmentChart } from './components/DepartmentChart';
 import { PendingCheckoutTable } from './components/PendingCheckoutTable';
 import { ExpectedVisitorTable } from './components/ExpectedVisitorTable';
 import { useScrollSmoother } from './hooks/useScrollSmoother';
+import { useMasonry } from './hooks/useMasonry';
 
 function App() {
   const [activeTab, setActiveTab] = useState('Day');
@@ -208,31 +209,33 @@ function App() {
     >
       <div className="smooth-content">
         {/* Fixed Header */}
-        <div className={`sticky top-0 z-50 h-20 backdrop-blur-md border-b ${
+        <div className={`sticky top-0 z-50 h-14 backdrop-blur-md border-b ${
           isDark ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'
         }`}>
           <div className="p-6  h-full">
             <div className="flex items-center justify-between h-full">
               {/* Left Section */}
-              <div className="flex items-center gap-4">
-                <button className={`text-sm bg-blue-500 text-white px-2 py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex items-center gap-2 ${
+              <div className="  ">
+                <button className={`px-1 text-sm bg-blue-500 text-white  py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex items-center  ${
                   isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
                 }`}>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                   Go Back
                 </button>
+                
               </div>
 
-              {/* Center Section - Title */}
-              <div className="flex-1 flex transform translate-x-2  ">
-                <h1 className={`text-lg font-semibold ${
+              <div className="  transform   ">
+                <h1 className={`text-2xl font-semibold ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}>
                   Real-time visitor tracking and analytics
                 </h1>
               </div>
+              {/* Center Section - Title */}
+              
 
               {/* Right Section - Filters and Theme Toggle */}
               <div className="flex items-center gap-4">
@@ -257,62 +260,76 @@ function App() {
           
 
         {/* Stats Cards */}
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Total Employees"
-            value="847"
-            showChange={false}
-            isDark={isDark}
-          />
-          <StatCard
-            title="Pre-registered Visitors"
-            value="156"
-            change="+8.3%"
-            isPositive={true}
-            isDark={isDark}
-          />
-          <StatCard
-            title="Currently Checked-in"
-            value="89"
-            change="+15"
-            isPositive={true}
-            isDark={isDark}
-          />
-          <StatCard
-            title="Today's Check-outs"
-            value="234"
-            change="-5.2%"
-            isPositive={false}
-            isDark={isDark}
-          />
-          </section>
-
-
+        
           
-                                  <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
-              <div className="md:col-span-1 lg:col-span-2">
-                <BarChart 
-                  data={chartData} 
-                  isDark={isDark} 
-                  startDate={startDate}
-                  endDate={endDate}
-                  activeTab={activeTab}
-                />
-              </div>
-              <div className="md:col-span-1 lg:col-span-1">
-                <DonutChart data={purposeData} isDark={isDark} />
-              </div>
-              <div className="md:col-span-1 lg:col-span-1">
-                <DepartmentChart data={departmentData} isDark={isDark} />
-              </div>
-          </section>
+        <section className="rounded-lg grid lg:grid-cols-2 gap-2">
+  {/* LEFT SIDE: Stat Cards + Donut + Department */}
+  <div className="space-y-2">
+    {/* 4 Stat Cards */}
+    <div className="grid gap-2 h-28 lg:max-w-[650px]  md:grid-cols-4 lg:grid-cols-4">
+      <StatCard
+        title="Total Employees"
+        value="847"
+        showChange={false}
+        isDark={isDark}
+      />
+      <StatCard
+        title="Pre-registered Visitors"
+        value="156"
+        change="+8.3%"
+        isPositive={true}
+        isDark={isDark}
+      />
+      <StatCard
+        title="Currently Checked-in"
+        value="89"
+        change="+15"
+        isPositive={true}
+        isDark={isDark}
+      />
+      <StatCard
+        title="Today's Check-outs"
+        value="234"
+        change="-5.2%"
+        isPositive={false}
+        isDark={isDark}
+      />
+    </div>
+
+    {/* DonutChart and DepartmentChart BELOW Stat Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <DonutChart data={purposeData} isDark={isDark} />
+      <DepartmentChart data={departmentData} isDark={isDark} />
+    </div>
+    <div className=''>
+    <ExpectedVisitorTable data={expectedVisitorsData} isDark={isDark} />
+    </div>
+  </div>
+
+  {/* RIGHT SIDE: Bar Chart */}
+  <div className="space-y-2">
+    <BarChart 
+      data={chartData} 
+      isDark={isDark} 
+      startDate={startDate}
+      endDate={endDate}
+      activeTab={activeTab}
+    />
+<div className='flex gap-1'>
+<PendingCheckoutTable data={pendingCheckouts} isDark={isDark} />
+<AlertCard alerts={alerts} isDark={isDark} />
+</div>
+  </div>
+</section>
+
+
+ 
+              
+          
+                 
 
           {/* Tables and Alerts Row */}
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <AlertCard alerts={alerts} isDark={isDark} />
-          <PendingCheckoutTable data={pendingCheckouts} isDark={isDark} />
-          <ExpectedVisitorTable data={expectedVisitorsData} isDark={isDark} />
-          </section>
+          
 
           {/* Additional Analytics Section */}
           

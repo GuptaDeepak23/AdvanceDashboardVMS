@@ -46,9 +46,19 @@ export const TabFilter: React.FC<TabFilterProps> = ({
 
   const tabs = ['Day', 'Week', 'Month', 'Custom Range'];
 
-  const handleCustomRangeClick = () => {
-    onTabChange('Custom Range');
-    setIsCalendarOpen(!isCalendarOpen);
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = event.target.value;
+    onTabChange(selectedValue);
+    
+    // If Custom Range is selected, open the calendar
+    if (selectedValue === 'Custom Range') {
+      setIsCalendarOpen(true);
+    } else {
+      // Reset custom dates when switching away from custom range
+      setStartDate('');
+      setEndDate('');
+      setIsCalendarOpen(false);
+    }
   };
 
   const handleDateRangeSelect = (startDate: string, endDate: string) => {
@@ -155,7 +165,7 @@ export const TabFilter: React.FC<TabFilterProps> = ({
       <button
         key={`${currentMonth.getFullYear()}-${currentMonth.getMonth()}-${day}`}
         onClick={() => handleDateClick(date)}
-        className={`h-6 w-6 rounded-full text-xs font-medium transition-all duration-200 relative ${
+        className={`h-6 w-6  rounded-full text-xs font-medium transition-all duration-200 relative ${
           isSelected
             ? isDark
               ? 'bg-blue-500 text-white'
@@ -190,27 +200,30 @@ export const TabFilter: React.FC<TabFilterProps> = ({
 
   return (
     <div className="flex flex-col lg:flex-row items-start lg:items-center gap-3">
-      {/* Tab Filter */}
-      <div className={`flex flex-wrap lg:flex-nowrap space-x-1 p-1 rounded-lg ${
-        isDark ? 'bg-gray-700' : 'bg-gray-100'
-      }`}>
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={tab === 'Custom Range' ? handleCustomRangeClick : () => onTabChange(tab)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-              activeTab === tab
-                ? isDark 
-                  ? 'bg-gray-800 text-blue-400 shadow-sm' 
-                  : 'bg-white text-blue-600 shadow-sm'
-                : isDark
-                  ? 'text-gray-300 hover:text-white'
-                  : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+      {/* Select Filter */}
+      <div className="relative">
+        <select
+          value={activeTab}
+          onChange={handleSelectChange}
+          className={`appearance-none px-1 py-2  rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
+            isDark 
+              ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20' 
+              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
+          }`}
+        >
+          {tabs.map((tab) => (
+            <option key={tab} value={tab}>
+              {tab}
+            </option>
+          ))}
+        </select>
+        
+        {/* Custom dropdown arrow */}
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg className={`w-3 h-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
 
       {/* Custom Range Display and Calendar */}
