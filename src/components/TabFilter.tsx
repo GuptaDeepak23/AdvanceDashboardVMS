@@ -44,7 +44,7 @@ export const TabFilter: React.FC<TabFilterProps> = ({
     }
   }, [isCalendarOpen]);
 
-  const tabs = ['Day', 'Week', 'Month', 'Custom Range'];
+  const tabs = ['Day', 'Week', 'Month', 'Quarterly', 'Yearly', 'Custom Range'];
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
@@ -55,8 +55,8 @@ export const TabFilter: React.FC<TabFilterProps> = ({
       setIsCalendarOpen(true);
     } else {
       // Reset custom dates when switching away from custom range
-      setStartDate('');
-      setEndDate('');
+      onStartDateChange?.('');
+      onEndDateChange?.('');
       setIsCalendarOpen(false);
     }
   };

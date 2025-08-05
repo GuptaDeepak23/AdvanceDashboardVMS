@@ -23,7 +23,7 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
 
   if (data.length === 0 || total === 0) {
     return (
-      <div className={`rounded-lg shadow-sm border p-4 ${
+      <div className={`rounded-lg shadow-xl border p-4 ${
         isDark 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
@@ -31,17 +31,15 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
         <h3 className={`text-lg font-semibold mb-4 ${
           isDark ? 'text-white' : 'text-gray-900'
         }`}>Visits by Department</h3>
-        <div className="flex flex-col items-center justify-center h-64">
-          <div className={`text-6xl mb-4 ${isDark ? 'text-gray-600' : 'text-gray-300'}`}>
-            🏢
-          </div>
-          <p className={`text-lg font-medium mb-2 ${
-            isDark ? 'text-gray-400' : 'text-gray-500'
-          }`}>No Department Data Available</p>
-          <p className={`text-sm ${
-            isDark ? 'text-gray-500' : 'text-gray-400'
-          }`}>Department visit statistics will appear here</p>
-        </div>
+        <div className="flex-1 flex items-center justify-center py-4">
+        <video 
+     src="public/nodata.mp4"  // ✅ Use a real path
+     autoPlay 
+     loop 
+     muted 
+     className="w-full h-full object-contain rounded-lg"
+   />
+       </div>
       </div>
     );
   }
@@ -84,7 +82,7 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
   };
 
   return (
-    <div className={`rounded-lg shadow-sm border p-4 ${
+    <div className={`rounded-lg shadow-xl border p-4 ${
       isDark 
         ? 'bg-gray-800 border-gray-700' 
         : 'bg-white border-gray-100'
@@ -132,7 +130,15 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
         </div>
         
         {/* Scrollable Legend below the chart */}
-        <div className="w-full flex-1 overflow-y-auto legend-scrollbar">
+        <div 
+          className="w-full flex-1 overflow-y-auto legend-scrollbar"
+          onWheel={(e) => {
+            e.stopPropagation();
+          }}
+          onTouchMove={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <div className="grid grid-cols-1 gap-1 w-full pr-2">
             {data.map((item, index) => (
               <div key={index} className="flex items-center gap-2 group cursor-pointer hover:bg-opacity-10 hover:bg-gray-500 rounded p-1 transition-colors duration-200">

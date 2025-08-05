@@ -37,7 +37,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alerts, isDark }) => {
   };
 
   return (
-    <div className={`rounded-lg shadow-sm border p-6 ${
+    <div className={`rounded-lg shadow-xl border p-6 ${
       isDark 
         ? 'bg-gray-800 border-gray-700' 
         : 'bg-white border-gray-100'

@@ -7,6 +7,7 @@ interface StatCardProps {
   isPositive?: boolean;
   isDark?: boolean;
   showChange?: boolean;
+  icon?: React.ReactNode;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({ 
@@ -15,49 +16,53 @@ export const StatCard: React.FC<StatCardProps> = ({
   change, 
   isPositive = true, 
   isDark,
-  showChange = true 
+  showChange = true,
+  icon
 }) => {
   return (
-    <div className={`stat-card h-28 flex flex-col rounded-lg shadow-md border transition-all duration-300 hover:shadow-lg hover:scale-[1.01] ${
+    <div className={`stat-card h-20 flex flex-col rounded-lg shadow-lg border transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
       isDark 
-        ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 hover:border-gray-600' 
-        : 'bg-gradient-to-br from-white to-gray-50 border-gray-200 hover:border-gray-300'
+        ? 'bg-white border-gray-200' 
+        : 'bg-white border-gray-200'
     }`}>
-      {/* Top section - Title */}
-      <div className="flex-shrink-0 p-3 pb-1">
-        <p className={`text-xs font-semibold tracking-wide uppercase leading-tight [@media(max-width:769px)]:truncate [@media(max-width:1024px)]:truncate  ${
-          isDark ? 'text-gray-400' : 'text-gray-500'
+      {/* Top section - Icon and Title */}
+      <div className="flex-shrink-0 p-2 pb-1 flex items-center gap-1.5">
+        {icon && (
+          <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+            {icon}
+          </div>
+        )}
+        <p className={`text-xs font-medium tracking-wide leading-tight truncate ${
+          isDark ? 'text-gray-600' : 'text-gray-600'
         }`}>{title}</p>
       </div>
 
       {/* Middle section - Value */}
-      <div className="flex-1 flex items-center px-3">
-        <p className={`text-lg font-bold tracking-tight ${
-          isDark ? 'text-white' : 'text-gray-900'
-        }`}>{value}</p>
+      <div className="flex-1 flex justify-between items-center gap-2 px-2">
+        <p className={`text-xl font-bold tracking-tight ${
+          isDark ? 'text-gray-800' : 'text-gray-800'
+        }`}>{Number(value).toFixed(2)}</p>
+        <div className="flex-shrink-0 p-2 pt-0">
+        {showChange && change ? (
+          <div className={`inline-flex    gap-1 px-1 py-0.5 rounded-md text-xs font-medium ${
+            isPositive 
+            ? 'bg-green-50 text-green-600 border border-green-200'
+            : 'bg-red-50 text-red-600 border border-red-200'
+          }`}>
+            <span className={`text-xs flex-shrink-0 flex gap-1  ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+              {isPositive ? '↗' : '↘'}
+              <span className="text-xs truncate">{change}</span>
+            </span>
+           
+          </div>
+        ) : (
+          <div className="h-4"></div>
+        )}
+      </div>
       </div>
 
       {/* Bottom section - Change indicator */}
-      <div className="flex-shrink-0 p-3 pt-1">
-        {showChange && change ? (
-          <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium max-w-full lg:max-w-[80px] ${
-            isPositive 
-            ? isDark 
-              ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-              : 'bg-green-100 text-green-700 border border-green-200'
-            : isDark 
-              ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
-              : 'bg-red-100 text-red-700 border border-red-200'
-          }`}>
-            <span className={`text-xs flex-shrink-0 ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-              {isPositive ? '↗' : '↘'}
-            </span>
-            <span className="text-xs ">{change}</span>
-          </div>
-        ) : (
-          <div className="h-6"></div>
-        )}
-      </div>
+      
     </div>
   );
 };

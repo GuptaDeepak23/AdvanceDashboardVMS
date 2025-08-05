@@ -11,13 +11,14 @@ html {
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Hide container initially until GSAP is ready */
-#root {
+/* #root {
   visibility: hidden;
-}
+} */
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
