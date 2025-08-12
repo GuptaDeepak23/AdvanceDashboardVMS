@@ -23,7 +23,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
 
   if (data.length === 0 || total === 0) {
     return (
-      <div className={`rounded-lg shadow-xl border p-4  ${
+      <div className={`rounded-lg shadow-xl border p-4 h-full  ${
         isDark 
           ? 'bg-gray-800 border-gray-700' 
           : 'bg-white border-gray-100'
@@ -31,17 +31,22 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
         <h3 className={`text-lg font-semibold mb-4 ${
           isDark ? 'text-white' : 'text-gray-900'
         }`}>Visitor Purposes</h3>
-        <div className="flex flex-col items-center justify-center h-64">
-          <div className={`text-6xl mb-4 ${isDark ? 'text-gray-600' : 'text-gray-300'}`}>
-            🎯
-          </div>
-          <p className={`text-lg font-medium mb-2 ${
-            isDark ? 'text-gray-400' : 'text-gray-500'
-          }`}>No Purpose Data Available</p>
-          <p className={`text-sm ${
-            isDark ? 'text-gray-500' : 'text-gray-400'
-          }`}>Visitor purposes will be categorized here</p>
-        </div>
+        <div className={`rounded-lg shadow-xl border p-4 ${
+        isDark 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-100'
+      }`}>
+        
+        <div className="flex-1 flex items-center justify-center py-4">
+        <video 
+     src="public/nodata.mp4"  // ✅ Use a real path
+     autoPlay 
+     loop 
+     muted 
+     className="w-full h-full object-contain rounded-lg"
+   />
+       </div>
+      </div>
       </div>
     );
   }

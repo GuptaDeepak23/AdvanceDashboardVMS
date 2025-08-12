@@ -1,11 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { StatCard } from './StatCard';
 import { TabFilter } from './TabFilter';
 // import { BarChart } from './BarChart';
 import { DonutChart } from './DonutChart';
-import { AlertCard } from './AlertCard';
+
 import { DepartmentChart } from './DepartmentChart';
 import { PendingCheckoutTable } from './PendingCheckoutTable';
 import { ExpectedVisitorTable } from './ExpectedVisitorTable';
@@ -13,8 +13,9 @@ import { useScrollSmoother } from '../hooks/useScrollSmoother';
 import { ChartTooltipAdvanced } from './ChartTooltipAdvanced';
 // import { AIAssistant } from './AIAssistant'; // Replaced with InlineAI
 import { InlineAI } from './InlineAI';
-import { checkin_by_intervals, fetchStatCardData ,pending_checkout ,visit_by_department ,expected_visitor  } from '../api';
-import { Users, UserCheck, UserX, TrendingUp, Percent, ArrowUpDown, Bot } from 'lucide-react';
+import { ChartLineLabel } from './Daily_visitor_trend';
+import { checkin_by_intervals, fetchStatCardData ,pending_checkout ,visit_by_department ,expected_visitor ,purpose_of_visit ,visitor_trend} from '../api';
+import { Users, UserCheck, UserX, Percent, ArrowUpDown, Bot } from 'lucide-react';
 
 
 function Dashboard() {
@@ -22,7 +23,7 @@ function Dashboard() {
   const [activeTab, setActiveTab] = useState('Day');
   const [activeMetricTab, setActiveMetricTab] = useState('Visitor Analytics');
   const [isDark, setIsDark] = useState(false);
-  const [showAIInAlerts, setShowAIInAlerts] = useState(false);
+
   const [showAIFullScreen, setShowAIFullScreen] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -36,7 +37,11 @@ function Dashboard() {
   const [isLoadingExpectedVisitor, setIsLoadingExpectedVisitor] = useState(false);
   const [barChartData, setBarChartData] = useState<any>(null);
   const [isLoadingBarChart, setIsLoadingBarChart] = useState(false);
-  const { containerRef } = useScrollSmoother(true);
+  const [purposeOfVisitData, setPurposeOfVisitData] = useState<any>(null);
+  const [isLoadingPurposeOfVisit, setIsLoadingPurposeOfVisit] = useState(false);
+  // const { containerRef } = useScrollSmoother(true);
+  const [visitorTrendData, setVisitorTrendData] = useState<any>(null);
+  const [isLoadingVisitorTrend, setIsLoadingVisitorTrend] = useState(false);
 
   // Handle logout
   const handleLogout = () => {
@@ -214,17 +219,66 @@ const fetchBarChart = async () => {
   }
 };
 
+//purpose_of_visit api
+const fetchPurposeOfVisit = async () => {
+  setIsLoadingPurposeOfVisit(true);
+  try {
+    setIsLoadingPurposeOfVisit(true);
+    const filterTypeMap: { [key: string]: string } = {
+      'Day': 'daily',
+      'Week': 'weekly', 
+      'Month': 'monthly',
+      'Quarterly': 'quarterly',
+      'Yearly': 'yearly',
+      'Custom Range': 'custom'
+    };
+    const filterType = filterTypeMap[activeTab] || 'day';
+    const response = await purpose_of_visit(filterType);
+    console.log('Purpose of visit API response:', response);
+    
+    // Handle the API response structure: {status: 200, purpose_count: []}
+    if (response.status === 200 && response.purpose_count) {
+      setPurposeOfVisitData(response.purpose_count);
+    } else {
+      setPurposeOfVisitData([]);
+    }
+  } catch (error) {
+    console.error('Error fetching purpose of visit data:', error);
+    setPurposeOfVisitData([]);
+  } finally {
+    setIsLoadingPurposeOfVisit(false);
+  }
+};
+
+//visitor_trend api
+
+  const fetchVisitorTrend = async () => {
+    setIsLoadingVisitorTrend(true);
+    try {
+      const response = await visitor_trend();
+      console.log('Visitor trend API response:', response);
+      
+      // Set the response directly since it contains the data structure
+      setVisitorTrendData(response);
+    } catch (error) {
+      console.error('Error fetching visitor trend data:', error);
+      setVisitorTrendData(null);
+    } finally {
+      setIsLoadingVisitorTrend(false);
+    }
+  };
+
+  
       fetchStats();
       fetchPendingCheckouts();
       fetchVisitByDepartment();
       fetchExpectedVisitor();
       fetchBarChart();
+      fetchPurposeOfVisit();
+      fetchVisitorTrend();
   }, [activeTab, startDate, endDate]);
 
-  // Base chart data with 3-hour intervals
  
-
-  // Filter chart data based on selected tab and custom range
   
 
   // Handle tab change
@@ -255,6 +309,27 @@ const fetchBarChart = async () => {
   ? (statCardData.total_checkin_visitors / statCardData.total_pre_registers) * 100
   : 0;
 
+  // Calculate pre-registration completion rate (not walk-in rate)
+  const preRegistrationCompletionRate = (() => {
+    if (!statCardData || !statCardData.total_pre_registers || statCardData.total_pre_registers === 0) {
+      return 0; // No pre-registrations = 0% completion
+    }
+    
+    const preRegCheckins = Number(statCardData.total_checkin_visitors) || 0;
+    const totalPreReg = Number(statCardData.total_pre_registers) || 0;
+    
+    return Math.round((preRegCheckins / totalPreReg) * 100);
+  })();
+
+  // Format the completion rate display
+  const formatCompletionDisplay = (rate: number) => {
+    return `${rate}%`;
+  };
+
+  const getCompletionTitle = () => {
+    return "Pre-registration Completion Rate";
+  };
+
   // Calculate Checkin to Checkout Ratio with proper null/undefined handling
   const checkinToCheckoutRatio = (() => {
     if (!statCardData) return 0;
@@ -268,6 +343,31 @@ const fetchBarChart = async () => {
     
     return isNaN(ratio) ? 0 : ratio;
   })();
+
+  // Calculate visitors still on-site (more meaningful for users)
+  const visitorsOnSitePercentage = (() => {
+    if (!statCardData) return 0;
+    
+    const checkinVisitors = Number(statCardData.total_checkin_visitors) || 0;
+    const checkoutVisitors = Number(statCardData.total_checkout_visitors) || 0;
+    
+    // If no visitors at all, return 0
+    if (checkinVisitors === 0) return 0;
+    
+    return 100 - checkinToCheckoutRatio;
+  })();
+  
+  const formatOnSiteDisplay = (onSitePercentage: number, totalCheckins: number) => {
+    if (totalCheckins === 0) return "0";
+    return `${onSitePercentage}%`;
+  };
+
+  const getOnSiteTitle = (onSitePercentage: number, totalCheckins: number) => {
+    if (totalCheckins === 0) return "No Visitors";
+    if (onSitePercentage <= 20) return "Most Visitors Departed";
+    if (onSitePercentage <= 50) return "Visitors Still On-Site";
+    return "High On-Site Occupancy";
+  };
 
   // Transform visit by department data for DonutChart
   const transformedVisitByDepartment = useMemo(() => {
@@ -316,10 +416,12 @@ const fetchBarChart = async () => {
           item.interval === expectedInterval
         ) || barChartData[index] || { checkin_count: 0, checkout_count: 0 };
         
-        // Create shorter, more readable labels
+        // Create shorter, more readable labels in format "00.00-03.00"
         const shortLabel = expectedInterval
-          .replace(':00:00', ':00')
-          .replace(' - ', '-');
+          .replace(/:00:00/g, '.00')     // Replace :00:00 with .00
+          .replace(/:/g, '.')           // Replace remaining colons with dots
+          .replace(' - ', '-')          // Replace " - " with "-"
+          .replace('.59.59', '.59');    // Handle special case for 23:59:59
         
         return {
           label: shortLabel,
@@ -331,11 +433,13 @@ const fetchBarChart = async () => {
     } else {
       // Regular transformation for other views
       transformed = barChartData.map((item: any) => {
-        // Apply consistent label formatting - always use short format
+        // Apply consistent label formatting in format "00.00-03.00"
         const label = item.interval ? 
           item.interval
-            .replace(':00:00', ':00')     // Remove seconds for consistent format
-            .replace(' - ', '-')          // Remove spaces around dash
+            .replace(/:00:00/g, '.00')     // Replace :00:00 with .00
+            .replace(/:/g, '.')           // Replace remaining colons with dots
+            .replace(' - ', '-')          // Replace " - " with "-"
+            .replace('.59.59', '.59')     // Handle special case for 23:59:59
           : 'Unknown';
         
         return {
@@ -355,13 +459,24 @@ const fetchBarChart = async () => {
 
 
 
-  const purposeData = [
-    { label: 'Business Meeting', value: 142, color: '#3B82F6' },
-    { label: 'Job Interview', value: 89, color: '#10B981' },
-    { label: 'Delivery', value: 67, color: '#F59E0B' },
-    { label: 'Maintenance', value: 34, color: '#EF4444' },
-    { label: 'Training', value: 28, color: '#8B5CF6' }
-  ];
+  // Transform purpose of visit data for DonutChart
+  const transformedPurposeData = useMemo(() => {
+    if (!purposeOfVisitData || !Array.isArray(purposeOfVisitData) || purposeOfVisitData.length === 0) {
+      // Return empty array when no data is available - no static fallback
+      return [];
+    }
+    
+    // Color palette for different purposes
+    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16'];
+    
+    return purposeOfVisitData.map((item: any, index: number) => ({
+      label: item.purpose_name || 'Unknown Purpose',
+      value: item.visitor_count || 0,
+      color: colors[index % colors.length],
+      purpose: item.purpose_name,
+      count: item.visitor_count
+    }));
+  }, [purposeOfVisitData]);
 
   
 
@@ -372,8 +487,8 @@ const fetchBarChart = async () => {
 
   return (
     <div 
-      ref={containerRef}
-      className={`max-h-[100vh] overflow-x-hidden ${
+      // ref={containerRef}
+      className={`min-h-[100vh] overflow-auto ${
       isDark ? 'bg-gray-900' : 'bg-gray-50'
       }`}
     >
@@ -405,12 +520,12 @@ const fetchBarChart = async () => {
                 
               </div>
 
-              <div className="  transform   mr-10 ">
-                <h1 className={`text-sm sm:text-2xl font-semibold ${
+              <div className="hidden sm:block   transform   mr-10 ">
+                <p className={` sm:text-xl md:text-2xl font-semibold ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}>
                   Real-time visitor tracking and analytics
-                </h1>
+                </p>
               </div>
               {/* Center Section - Title */}
               
@@ -420,10 +535,6 @@ const fetchBarChart = async () => {
               <button
                   onClick={() => {
                     setShowAIFullScreen(!showAIFullScreen);
-                    // Reset other AI states when toggling full screen
-                    if (!showAIFullScreen) {
-                      setShowAIInAlerts(false);
-                    }
                   }}
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
                     showAIFullScreen
@@ -448,7 +559,7 @@ const fetchBarChart = async () => {
                 />
                 <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
                 
-                <button
+                {/* <button
                   onClick={handleLogout}
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     isDark 
@@ -457,34 +568,33 @@ const fetchBarChart = async () => {
                   }`}
                 >
                   Logout
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className={`p-4 space-y-4 ${showAIInAlerts || showAIFullScreen ? 'overflow-hidden' : 'max-h-screen overflow-hidden'}`}>
+        <div className={`p-4 space-y-4 ${showAIFullScreen ? 'overflow-auto' : 'max-h-screen overflow-auto'}`}>
           
         {/* AI Full Screen Mode */}
         {showAIFullScreen ? (
-          <div className="h-[calc(100vh-120px)] w-full">
-            <div className={`rounded-lg shadow-lg border h-full ${
-              isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-            }`}>
-              <InlineAI 
-                isDark={isDark}
-                dashboardData={{
-                  statCardData,
-                  pendingCheckoutData,
-                  visitByDepartmentData,
-                  expectedVisitorData,
-                  barChartData
-                }}
-                onClose={() => setShowAIFullScreen(false)}
-              />
-            </div>
-          </div>
+                     <div className="h-[calc(100vh-120px)] w-full flex justify-center">
+             <div className="w-5/6">
+               <InlineAI 
+                 isDark={isDark}
+                 dashboardData={{
+                   statCardData,
+                   pendingCheckoutData,
+                   visitByDepartmentData,
+                   expectedVisitorData,
+                   barChartData,
+                   purposeOfVisitData
+                 }}
+                 onClose={() => setShowAIFullScreen(false)}
+               />
+             </div>
+           </div>
         ) : (
           <>
             {/* Tab Navigation */}
@@ -513,7 +623,7 @@ const fetchBarChart = async () => {
             icon={<UserCheck className="w-4 h-4 text-blue-600" />}
           />
           <StatCard
-            title="Today's Check-outs"
+            title="Check-outs"
             value={isLoadingStats ? "Loading..." : (statCardData?.total_checkout_visitors?.toString() || "0")}
             change={statCardData?.todays_checkouts_change ? `${statCardData.todays_checkouts_change}%` : undefined}
             isPositive={statCardData?.todays_checkouts_change !== undefined ? statCardData.todays_checkouts_change >= 0 : true}
@@ -521,27 +631,26 @@ const fetchBarChart = async () => {
             icon={<UserX className="w-4 h-4 text-red-600" />}
           />
           <StatCard
-            title="Pre-registered to Checkin Ratio"
-            value={ratiofinal.toString()}
+            title={getCompletionTitle()}
+            value={formatCompletionDisplay(preRegistrationCompletionRate)}
             change="10"
             isPositive={true}
             isDark={isDark}
             icon={<Percent className="w-4 h-4 text-purple-600" />}
           />
           <StatCard
-            title="Checkin to Checkout Ratio (%)"
-            value={isLoadingStats ? "0" : checkinToCheckoutRatio.toString()}
+            title={getOnSiteTitle(visitorsOnSitePercentage, Number(statCardData?.total_checkin_visitors) || 0)}
+            value={isLoadingStats ? "0" : formatOnSiteDisplay(visitorsOnSitePercentage, Number(statCardData?.total_checkin_visitors) || 0)}
             change="10"
-            isPositive={true}
+            isPositive={false}
             isDark={isDark}
             icon={<ArrowUpDown className="w-4 h-4 text-orange-600" />}
           />
         </div>
-            <div className="flex space-x-1 mb-6">
+            <div className="flex space-x-1 sm:space-x-2 mb-6">
               <button 
                 onClick={() => {
                   setActiveMetricTab('Visitor Analytics');
-                  setShowAIInAlerts(false);
                   setShowAIFullScreen(false);
                 }}
                 className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
@@ -555,7 +664,6 @@ const fetchBarChart = async () => {
               <button 
                 onClick={() => {
                   setActiveMetricTab('Department Metrics');
-                  setShowAIInAlerts(false);
                   setShowAIFullScreen(false);
                 }}
                 className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
@@ -569,7 +677,6 @@ const fetchBarChart = async () => {
               <button 
                 onClick={() => {
                   setActiveMetricTab('Visitor Management');
-                  setShowAIInAlerts(false);
                   setShowAIFullScreen(false);
                 }}
                 className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
@@ -582,33 +689,29 @@ const fetchBarChart = async () => {
               </button>
               <button 
                 onClick={() => {
-                  setActiveMetricTab('System Alerts');
-                  // Reset AI view when manually switching to alerts tab
-                  if (activeMetricTab !== 'System Alerts') {
-                    setShowAIInAlerts(false);
-                  }
+                  setActiveMetricTab('Visitor Trend');
                   setShowAIFullScreen(false);
                 }}
                 className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                  activeMetricTab === 'System Alerts'
+                  activeMetricTab === 'Visitor Trend'
                     ? 'bg-amber-600 text-white hover:bg-amber-700'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
-                System Alerts
+                Visitor Trend
               </button>
             </div>
         
-            {/* StatCards Row - Hidden when AI is active */}
+           
            
 
 
 
         {/* Tab Content */}
         {activeMetricTab === 'Visitor Analytics' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4">
             {/* Chart with moderate width */}
-            <div className={`rounded-lg shadow-lg border h-86 grid col-span-2 ${
+            <div className={`rounded-lg shadow-lg border h-86 grid md:col-span-2 ${
               isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}>
               <ChartTooltipAdvanced 
@@ -624,7 +727,7 @@ const fetchBarChart = async () => {
             <div className={`rounded-lg shadow-lg border h-86 ${
               isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}>
-              <DonutChart data={purposeData} isDark={isDark} />
+              <DonutChart data={isLoadingPurposeOfVisit ? [] : transformedPurposeData} isDark={isDark} />
             </div>
           </div>
         )}
@@ -655,36 +758,21 @@ const fetchBarChart = async () => {
           </div>
         )}
 
-        {activeMetricTab === 'System Alerts' && (
-          <div className={`${showAIInAlerts ? 'h-[calc(100vh-180px)]' : ''}`}>
-            {showAIInAlerts ? (
-              <div className={`rounded-lg shadow-lg border h-full ${
-                isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-              }`}>
-                <InlineAI 
-                  isDark={isDark}
-                  dashboardData={{
-                    statCardData,
-                    pendingCheckoutData,
-                    visitByDepartmentData,
-                    expectedVisitorData,
-                    barChartData
-                  }}
-                  onClose={() => setShowAIInAlerts(false)}
-                />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className={`rounded-lg shadow-lg border h-86 ${
-                  isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                }`}>
-                  <AlertCard alerts={alerts} isDark={isDark} />
-                </div>
-              </div>
-            )}
+        {activeMetricTab === 'Visitor Trend' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            <div className={`rounded-lg shadow-lg border h-86 overflow-hidden ${
+              isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            }`}>
+              <ChartLineLabel 
+                isDark={isDark}
+                weeklydata={isLoadingVisitorTrend ? [] : visitorTrendData?.weekly_visitors || []}
+                monthlydata={isLoadingVisitorTrend ? [] : visitorTrendData?.yearly_visitors_by_month || []}
+              />
+            </div>
           </div>
         )}
 
+        
         {/* AI Assistant Modal - Removed as AI is now integrated into System Alerts */}
  
           </>

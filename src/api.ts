@@ -1,5 +1,7 @@
 const proxyUrl = "http://localhost:8080/";
 const baseUrl = "https://kanishkacrm.com/ksplvms_uat/public/api/v1/";
+const tokenUrl = `https://kanishkacrm.com/ksplvms_uat/public/getToken`;
+
 
 interface ApiResponse {
   token?: string;
@@ -15,9 +17,11 @@ export const fetchWithToken = async (endpoint: string): Promise<ApiResponse> => 
       "Content-Type": "application/json"
     }
   });
-
+console.log(response);
   return await response.json();
 };
+
+
 
 export const loginUser = async (email: string, password: string): Promise<ApiResponse> => {
   const response = await fetch(`${proxyUrl}${baseUrl}login`, {
@@ -31,7 +35,7 @@ export const loginUser = async (email: string, password: string): Promise<ApiRes
   return await response.json();
 };
 
-// New function to fetch stat card data
+// fetch stat card data
 export const fetchStatCardData = async (filterType: string): Promise<ApiResponse> => {
   const endpoint = `count-for-current-date?filter_type=${filterType}`;
   return await fetchWithToken(endpoint);
@@ -61,6 +65,26 @@ export const checkin_by_intervals = async(filterType: string): Promise<ApiRespon
   return await fetchWithToken(endpoint);
 };
 
+//purpose_of_visit api
+export const purpose_of_visit = async(filterType: string): Promise<ApiResponse> => {  
+  const endpoint = `purpose-of-visits?filter_type=${filterType}`;
+  return await fetchWithToken(endpoint);
+};
+
+//visitor_trend api
+export const visitor_trend = async(): Promise<ApiResponse> => {  
+  const endpoint = `get-visitor-summary`;
+  return await fetchWithToken(endpoint);
+};
+
+
+
+
+
+
+
+
+//getToken api
 
 
 

@@ -325,11 +325,12 @@ Please try your question again in a moment, or check your internet connection.`;
   };
 
   return (
-    <div className={`h-full w-full flex flex-col ${
-      isDark 
-        ? 'bg-gray-800 border-gray-700' 
-        : 'bg-white border-gray-100'
-    }`}>
+    <div className="h-full w-full flex justify-center items-start">
+      <div
+        className={`h-full w-1/2 mx-auto flex flex-col rounded-lg border shadow-lg ${
+          isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+        }`}
+      >
       {/* Header */}
       <div className={`flex items-center justify-between p-4 border-b ${
         isDark ? 'border-gray-700' : 'border-gray-200'
@@ -353,7 +354,6 @@ Please try your question again in a moment, or check your internet connection.`;
           <X className="w-4 h-4" />
         </button>
       </div>
-
       {/* Messages - Takes up most of the space */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
         {messages.map((message) => (
@@ -442,6 +442,7 @@ Please try your question again in a moment, or check your internet connection.`;
             <Send className="w-4 h-4" />
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
