@@ -103,7 +103,6 @@ body {
 /* GSAP ScrollSmoother optimizations */
 .smooth-content {
   will-change: transform;
-  min-height: 100vh;
 }
 
 /* Ensure proper stacking context for sticky elements */

@@ -37,6 +37,7 @@ function Dashboard() {
   const [isLoadingExpectedVisitor, setIsLoadingExpectedVisitor] = useState(false);
   const [barChartData, setBarChartData] = useState<any>(null);
   const [isLoadingBarChart, setIsLoadingBarChart] = useState(false);
+  const [peakHourData, setPeakHourData] = useState<any>(null);
   const [purposeOfVisitData, setPurposeOfVisitData] = useState<any>(null);
   const [isLoadingPurposeOfVisit, setIsLoadingPurposeOfVisit] = useState(false);
   // const { containerRef } = useScrollSmoother(true);
@@ -198,10 +199,24 @@ const fetchBarChart = async () => {
     // Check for nested structure (original format)
     if (response.checkin_by_intervals?.original?.intervals && response.checkin_by_intervals.original.intervals.length > 0) {
       intervals = response.checkin_by_intervals.original.intervals;
+      
+      // Extract peak hour data from the original response
+      const peakHour = response.checkin_by_intervals?.original?.highest_checkin_interval;
+      if (peakHour) {
+        console.log('Peak hour data:', peakHour);
+        setPeakHourData(peakHour);
+      }
     }
     // Check for direct array structure (quarterly/yearly format)
     else if (Array.isArray(response.checkin_by_intervals) && response.checkin_by_intervals.length > 0) {
       intervals = response.checkin_by_intervals;
+      
+      // For direct array format, extract peak hour from top-level response
+      const peakHour = response.highest_checkin_interval;
+      if (peakHour) {
+        console.log('Peak hour data:', peakHour);
+        setPeakHourData(peakHour);
+      }
     }
     
     if (intervals) {
@@ -427,7 +442,8 @@ const fetchPurposeOfVisit = async () => {
           label: shortLabel,
           checkins: Number(apiData.checkin_count) || 0,
           checkouts: Number(apiData.checkout_count) || 0,
-          total: (Number(apiData.checkin_count) || 0) + (Number(apiData.checkout_count) || 0)
+          total: (Number(apiData.checkin_count) || 0) + (Number(apiData.checkout_count) || 0),
+          peakHours: expectedInterval
         };
       });
     } else {
@@ -446,7 +462,8 @@ const fetchPurposeOfVisit = async () => {
           label: label,
           checkins: Number(item.checkin_count) || 0,
           checkouts: Number(item.checkout_count) || 0,
-          total: (Number(item.checkin_count) || 0) + (Number(item.checkout_count) || 0)
+          total: (Number(item.checkin_count) || 0) + (Number(item.checkout_count) || 0),
+          peakHours: item.interval || 'Unknown'
         };
       });
     }
@@ -488,7 +505,7 @@ const fetchPurposeOfVisit = async () => {
   return (
     <div 
       // ref={containerRef}
-      className={`min-h-[100vh] overflow-auto ${
+      className={`w-full overflow-x-hidden ${
       isDark ? 'bg-gray-900' : 'bg-gray-50'
       }`}
     >
@@ -575,7 +592,7 @@ const fetchPurposeOfVisit = async () => {
         </div>
 
         {/* Main Content */}
-        <div className={`p-4 space-y-4 ${showAIFullScreen ? 'overflow-auto' : 'max-h-screen overflow-auto'}`}>
+        <div className="p-4 space-y-4">
           
         {/* AI Full Screen Mode */}
         {showAIFullScreen ? (
@@ -598,7 +615,7 @@ const fetchPurposeOfVisit = async () => {
         ) : (
           <>
             {/* Tab Navigation */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-3 mb-4">
           <StatCard
             title="Total Employees"
             value={isLoadingStats ? "Loading..." : (statCardData?.total_employees?.toString() || "0")}
@@ -647,13 +664,13 @@ const fetchPurposeOfVisit = async () => {
             icon={<ArrowUpDown className="w-4 h-4 text-orange-600" />}
           />
         </div>
-            <div className="flex space-x-1 sm:space-x-2 mb-6">
+            <div className="flex flex-wrap gap-1 sm:gap-2 mb-6">
               <button 
                 onClick={() => {
                   setActiveMetricTab('Visitor Analytics');
                   setShowAIFullScreen(false);
                 }}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                className={`px-3 md:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors ${
                   activeMetricTab === 'Visitor Analytics'
                     ? 'bg-amber-600 text-white hover:bg-amber-700'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -666,7 +683,7 @@ const fetchPurposeOfVisit = async () => {
                   setActiveMetricTab('Department Metrics');
                   setShowAIFullScreen(false);
                 }}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                className={`px-3 md:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors ${
                   activeMetricTab === 'Department Metrics'
                     ? 'bg-amber-600 text-white hover:bg-amber-700'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -679,7 +696,7 @@ const fetchPurposeOfVisit = async () => {
                   setActiveMetricTab('Visitor Management');
                   setShowAIFullScreen(false);
                 }}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                className={`px-3 md:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors ${
                   activeMetricTab === 'Visitor Management'
                     ? 'bg-amber-600 text-white hover:bg-amber-700'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -692,7 +709,7 @@ const fetchPurposeOfVisit = async () => {
                   setActiveMetricTab('Visitor Trend');
                   setShowAIFullScreen(false);
                 }}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                className={`px-3 md:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors ${
                   activeMetricTab === 'Visitor Trend'
                     ? 'bg-amber-600 text-white hover:bg-amber-700'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -720,6 +737,7 @@ const fetchPurposeOfVisit = async () => {
                 startDate={startDate}
                 endDate={endDate} 
                 activeTab={activeTab}
+                peakHour={peakHourData}
               />
             </div>
 
@@ -759,8 +777,8 @@ const fetchPurposeOfVisit = async () => {
         )}
 
         {activeMetricTab === 'Visitor Trend' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            <div className={`rounded-lg shadow-lg border h-86 overflow-hidden ${
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className={`rounded-lg shadow-lg border h-86 col-span-1 lg:col-span-2 overflow-hidden ${
               isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}>
               <ChartLineLabel 

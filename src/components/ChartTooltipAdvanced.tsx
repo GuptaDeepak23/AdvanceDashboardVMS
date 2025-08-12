@@ -9,6 +9,7 @@ interface ChartDataItem {
   label: string;
   checkins: number;
   checkouts: number;
+  peakHours: string;
 }
 
 interface ChartTooltipAdvancedProps {
@@ -17,6 +18,7 @@ interface ChartTooltipAdvancedProps {
   startDate?: string;
   endDate?: string;
   activeTab?: string;
+  peakHour?: any;
 }
 
 export function ChartTooltipAdvanced({ 
@@ -24,7 +26,8 @@ export function ChartTooltipAdvanced({
   data = [], 
   startDate, 
   endDate, 
-  activeTab 
+  activeTab,
+  peakHour 
 }: ChartTooltipAdvancedProps) {
   
   // Chart data debugging (can be removed in production)
@@ -69,7 +72,8 @@ export function ChartTooltipAdvanced({
         ? 'bg-gray-800 border-gray-700' 
         : 'bg-white border-gray-200'
     }`}>
-      <div className="mb-4">
+      <div className="mb-4 flex justify-between">
+        <div>
         <h3 className={`text-lg font-semibold ${
           isDark ? 'text-white' : 'text-gray-900'
         }`}>
@@ -82,9 +86,31 @@ export function ChartTooltipAdvanced({
             ? `${startDate} to ${endDate}` 
             : `${activeTab} View`} - 3-Hour Interval Analysis
         </p>
+        </div>
+        <div className={`mt-3 p-2 rounded-md ${
+          isDark ? 'bg-gray-700/50' : 'bg-blue-50/50'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`w-1.5 h-1.5 rounded-full ${
+                isDark ? 'bg-blue-400' : 'bg-blue-600'
+              }`}></div>
+              <span className={`text-xs font-medium ${
+                isDark ? 'text-blue-300' : 'text-blue-700'
+              }`}>Peak Hours :- </span>
+            </div>
+            <span className={`text-sm font-semibold ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>
+              {peakHour ? peakHour.interval : 'No data'}
+            </span>
+          </div>
+        </div>
+
       </div>
+     
       
-      <div className="h-80 flex items-center justify-center">
+      <div className="h-80 flex items-center justify-center overflow-x-auto md:overflow-x-hidden">
   {data.length === 0 || data.every(item => item.checkins === 0 && item.checkouts === 0) ? (
     <video 
       src="Public/nodata.mp4"  
@@ -94,7 +120,8 @@ export function ChartTooltipAdvanced({
       className="w-full h-full object-contain rounded-lg"
     />
   ) : (
-    <ResponsiveContainer width="100%" height="100%">
+    
+    <ResponsiveContainer width="100%" height="100%" style={{overflowX: 'auto'}} minWidth={600}>
       <BarChart data={data} maxBarSize={50}>
         <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#374151' : '#e5e7eb'} />
         <XAxis
@@ -143,3 +170,6 @@ export function ChartTooltipAdvanced({
     </div>
   );
 }
+
+
+
