@@ -77,6 +77,30 @@ export const visitor_trend = async(): Promise<ApiResponse> => {
   return await fetchWithToken(endpoint);
 };
 
+// Check-in difference trend API
+export const getCheckinDifferenceTrend = async (): Promise<ApiResponse> => {
+  const endpoint = `get-checkin-difference-trend`;
+  return await fetchWithToken(endpoint);
+};
+
+// Pre-register completion API
+export const getPreRegisterCompletion = async (filterType: string): Promise<ApiResponse> => {
+  const endpoint = `pre-register-completion/?filter_type=${filterType}`;
+  return await fetchWithToken(endpoint);
+};
+
+// Incomplete checkouts API
+export const getIncompleteCheckouts = async (filterType: string): Promise<ApiResponse> => {
+  const endpoint = `get-incomplete-checkouts/?filter_type=${filterType}`;
+  return await fetchWithToken(endpoint);
+};
+
+// Pre-register difference trend API
+export const getPreRegisterDifferenceTrend = async (): Promise<ApiResponse> => {
+  const endpoint = `get-pre-register-difference-trend`;
+  return await fetchWithToken(endpoint);
+};
+
 
 
 

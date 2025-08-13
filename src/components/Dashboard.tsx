@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { StatCard } from './StatCard';
+
 import { TabFilter } from './TabFilter';
 // import { BarChart } from './BarChart';
 import { DonutChart } from './DonutChart';
@@ -14,7 +15,7 @@ import { ChartTooltipAdvanced } from './ChartTooltipAdvanced';
 // import { AIAssistant } from './AIAssistant'; // Replaced with InlineAI
 import { InlineAI } from './InlineAI';
 import { ChartLineLabel } from './Daily_visitor_trend';
-import { checkin_by_intervals, fetchStatCardData ,pending_checkout ,visit_by_department ,expected_visitor ,purpose_of_visit ,visitor_trend} from '../api';
+import { checkin_by_intervals, fetchStatCardData ,pending_checkout ,visit_by_department ,expected_visitor ,purpose_of_visit ,visitor_trend, getCheckinDifferenceTrend, getPreRegisterCompletion, getIncompleteCheckouts, getPreRegisterDifferenceTrend } from '../api';
 import { Users, UserCheck, UserX, Percent, ArrowUpDown, Bot } from 'lucide-react';
 
 
@@ -43,6 +44,14 @@ function Dashboard() {
   // const { containerRef } = useScrollSmoother(true);
   const [visitorTrendData, setVisitorTrendData] = useState<any>(null);
   const [isLoadingVisitorTrend, setIsLoadingVisitorTrend] = useState(false);
+  const [trendComparisonData, setTrendComparisonData] = useState<any>(null);
+  const [isLoadingTrendComparison, setIsLoadingTrendComparison] = useState(false);
+  const [preRegisterCompletionData, setPreRegisterCompletionData] = useState<any>(null);
+  const [isLoadingPreRegisterCompletion, setIsLoadingPreRegisterCompletion] = useState(false);
+  const [incompleteCheckoutsData, setIncompleteCheckoutsData] = useState<any>(null);
+  const [isLoadingIncompleteCheckouts, setIsLoadingIncompleteCheckouts] = useState(false);
+  const [preRegisterDifferenceTrendData, setPreRegisterDifferenceTrendData] = useState<any>(null);
+  const [isLoadingPreRegisterDifferenceTrend, setIsLoadingPreRegisterDifferenceTrend] = useState(false);
 
   // Handle logout
   const handleLogout = () => {
@@ -283,6 +292,88 @@ const fetchPurposeOfVisit = async () => {
     }
   };
 
+  // Fetch trend comparison data
+  const fetchTrendComparisonData = async () => {
+    setIsLoadingTrendComparison(true);
+    try {
+      const response = await getCheckinDifferenceTrend();
+      console.log('Trend comparison API response:', response);
+      setTrendComparisonData(response);
+    } catch (error) {
+      console.error('Error fetching trend comparison data:', error);
+      setTrendComparisonData(null);
+    } finally {
+      setIsLoadingTrendComparison(false);
+    }
+  };
+
+  // Fetch pre-register completion data
+  const fetchPreRegisterCompletionData = async () => {
+    setIsLoadingPreRegisterCompletion(true);
+    try {
+      const filterTypeMap: { [key: string]: string } = {
+        'Day': 'daily',
+        'Week': 'weekly',
+        'Month': 'monthly',
+        'Quarterly': 'quarterly',
+        'Yearly': 'yearly',
+        'Custom Range': 'custom'
+      };
+      const filterType = filterTypeMap[activeTab] || 'daily';
+      const response = await getPreRegisterCompletion(filterType);
+      console.log('Pre-register completion API response:', response);
+      console.log('Filter type used:', filterType);
+      console.log('Response data:', response?.pre_register_completion_rate);
+      console.log('Full response:', response);
+      setPreRegisterCompletionData(response);
+    } catch (error) {
+      console.error('Error fetching pre-register completion data:', error);
+      console.error('Error details:', error);
+      setPreRegisterCompletionData(null);
+    } finally {
+      setIsLoadingPreRegisterCompletion(false);
+    }
+  };
+
+  // Fetch incomplete checkouts data
+  const fetchIncompleteCheckoutsData = async () => {
+    setIsLoadingIncompleteCheckouts(true);
+    try {
+      const filterTypeMap: { [key: string]: string } = {
+        'Day': 'daily',
+        'Week': 'weekly',
+        'Month': 'monthly',
+        'Quarterly': 'quarterly',
+        'Yearly': 'yearly',
+        'Custom Range': 'custom'
+      };
+      const filterType = filterTypeMap[activeTab] || 'daily';
+      const response = await getIncompleteCheckouts(filterType);
+      console.log('Incomplete checkouts API response:', response);
+      setIncompleteCheckoutsData(response);
+    } catch (error) {
+      console.error('Error fetching incomplete checkouts data:', error);
+      setIncompleteCheckoutsData(null);
+    } finally {
+      setIsLoadingIncompleteCheckouts(false);
+    }
+  };
+
+  // Fetch pre-register difference trend data
+  const fetchPreRegisterDifferenceTrendData = async () => {
+    setIsLoadingPreRegisterDifferenceTrend(true);
+    try {
+      const response = await getPreRegisterDifferenceTrend();
+      console.log('Pre-register difference trend API response:', response);
+      setPreRegisterDifferenceTrendData(response);
+    } catch (error) {
+      console.error('Error fetching pre-register difference trend data:', error);
+      setPreRegisterDifferenceTrendData(null);
+    } finally {
+      setIsLoadingPreRegisterDifferenceTrend(false);
+    }
+  };
+
   
       fetchStats();
       fetchPendingCheckouts();
@@ -291,6 +382,10 @@ const fetchPurposeOfVisit = async () => {
       fetchBarChart();
       fetchPurposeOfVisit();
       fetchVisitorTrend();
+      fetchTrendComparisonData();
+      fetchPreRegisterCompletionData();
+      fetchIncompleteCheckoutsData();
+      fetchPreRegisterDifferenceTrendData();
   }, [activeTab, startDate, endDate]);
 
  
@@ -320,69 +415,7 @@ const fetchPurposeOfVisit = async () => {
     setEndDate(date);
   };
 
-  const ratiofinal = statCardData && statCardData.total_pre_registers > 0
-  ? (statCardData.total_checkin_visitors / statCardData.total_pre_registers) * 100
-  : 0;
 
-  // Calculate pre-registration completion rate (not walk-in rate)
-  const preRegistrationCompletionRate = (() => {
-    if (!statCardData || !statCardData.total_pre_registers || statCardData.total_pre_registers === 0) {
-      return 0; // No pre-registrations = 0% completion
-    }
-    
-    const preRegCheckins = Number(statCardData.total_checkin_visitors) || 0;
-    const totalPreReg = Number(statCardData.total_pre_registers) || 0;
-    
-    return Math.round((preRegCheckins / totalPreReg) * 100);
-  })();
-
-  // Format the completion rate display
-  const formatCompletionDisplay = (rate: number) => {
-    return `${rate}%`;
-  };
-
-  const getCompletionTitle = () => {
-    return "Pre-registration Completion Rate";
-  };
-
-  // Calculate Checkin to Checkout Ratio with proper null/undefined handling
-  const checkinToCheckoutRatio = (() => {
-    if (!statCardData) return 0;
-    
-    const checkinVisitors = Number(statCardData.total_checkin_visitors) || 0;
-    const checkoutVisitors = Number(statCardData.total_checkout_visitors) || 0;
-    
-    if (checkinVisitors === 0) return 0;
-    
-    const ratio = Math.round((checkoutVisitors / checkinVisitors) * 100);
-    
-    return isNaN(ratio) ? 0 : ratio;
-  })();
-
-  // Calculate visitors still on-site (more meaningful for users)
-  const visitorsOnSitePercentage = (() => {
-    if (!statCardData) return 0;
-    
-    const checkinVisitors = Number(statCardData.total_checkin_visitors) || 0;
-    const checkoutVisitors = Number(statCardData.total_checkout_visitors) || 0;
-    
-    // If no visitors at all, return 0
-    if (checkinVisitors === 0) return 0;
-    
-    return 100 - checkinToCheckoutRatio;
-  })();
-  
-  const formatOnSiteDisplay = (onSitePercentage: number, totalCheckins: number) => {
-    if (totalCheckins === 0) return "0";
-    return `${onSitePercentage}%`;
-  };
-
-  const getOnSiteTitle = (onSitePercentage: number, totalCheckins: number) => {
-    if (totalCheckins === 0) return "No Visitors";
-    if (onSitePercentage <= 20) return "Most Visitors Departed";
-    if (onSitePercentage <= 50) return "Visitors Still On-Site";
-    return "High On-Site Occupancy";
-  };
 
   // Transform visit by department data for DonutChart
   const transformedVisitByDepartment = useMemo(() => {
@@ -626,18 +659,22 @@ const fetchPurposeOfVisit = async () => {
           <StatCard
             title="Pre-registered Visitors"
             value={isLoadingStats ? "Loading..." : (statCardData?.total_pre_registers?.toString() || "0")}
-            change={statCardData?.pre_registered_visitors_change ? `+${statCardData.pre_registered_visitors_change}%` : undefined}
-            isPositive={true}
             isDark={isDark}
             icon={<UserCheck className="w-4 h-4 text-green-600" />}
+            showTrendComparison={true}
+            currentValue={preRegisterDifferenceTrendData?.pre_register_trend?.today_completion_rate || 0}
+            previousValue={preRegisterDifferenceTrendData?.pre_register_trend?.yesterday_completion_rate || 0}
+            percentageChange={preRegisterDifferenceTrendData?.pre_register_trend?.percentage_change || 0}
           />
           <StatCard
-            title="Currently Checked-in"
+            title="Checked-in"
             value={isLoadingStats ? "Loading..." : (statCardData?.total_checkin_visitors?.toString() || "0")}
-            change={statCardData?.currently_checked_in_change ? `+${statCardData.currently_checked_in_change}` : undefined}
-            isPositive={true}
             isDark={isDark}
             icon={<UserCheck className="w-4 h-4 text-blue-600" />}
+            showTrendComparison={true}
+            currentValue={trendComparisonData?.today_checkins || 0}
+            previousValue={trendComparisonData?.yesterday_checkins || 0}
+            percentageChange={trendComparisonData?.checkin_change_percentage || 0}
           />
           <StatCard
             title="Check-outs"
@@ -647,23 +684,22 @@ const fetchPurposeOfVisit = async () => {
             isDark={isDark}
             icon={<UserX className="w-4 h-4 text-red-600" />}
           />
-          <StatCard
-            title={getCompletionTitle()}
-            value={formatCompletionDisplay(preRegistrationCompletionRate)}
-            change="10"
-            isPositive={true}
+                    <StatCard
+            title="Pre-registration Completion Rate"
+            value={isLoadingPreRegisterCompletion ? "Loading..." : `${Math.round(preRegisterCompletionData?.pre_register_completion_rate?.completion_percentage || 0)}%`}
             isDark={isDark}
             icon={<Percent className="w-4 h-4 text-purple-600" />}
           />
-          <StatCard
-            title={getOnSiteTitle(visitorsOnSitePercentage, Number(statCardData?.total_checkin_visitors) || 0)}
-            value={isLoadingStats ? "0" : formatOnSiteDisplay(visitorsOnSitePercentage, Number(statCardData?.total_checkin_visitors) || 0)}
-            change="10"
-            isPositive={false}
+
+                    <StatCard
+            title="Visitors Still On-Site"
+            value={isLoadingIncompleteCheckouts ? "0" : `${Math.round(incompleteCheckoutsData?.not_checked_out_percentage || 0)}%`}
             isDark={isDark}
             icon={<ArrowUpDown className="w-4 h-4 text-orange-600" />}
           />
         </div>
+
+
             <div className="flex flex-wrap gap-1 sm:gap-2 mb-6">
               <button 
                 onClick={() => {
@@ -787,6 +823,7 @@ const fetchPurposeOfVisit = async () => {
                 monthlydata={isLoadingVisitorTrend ? [] : visitorTrendData?.yearly_visitors_by_month || []}
               />
             </div>
+
           </div>
         )}
 

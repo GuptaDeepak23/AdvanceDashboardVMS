@@ -1,4 +1,5 @@
 import React from 'react';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
@@ -8,6 +9,11 @@ interface StatCardProps {
   isDark?: boolean;
   showChange?: boolean;
   icon?: React.ReactNode;
+  // New props for trend comparison
+  currentValue?: number;
+  previousValue?: number;
+  showTrendComparison?: boolean;
+  percentageChange?: number; // Add percentage change prop
 }
 
 export const StatCard: React.FC<StatCardProps> = ({ 
@@ -17,7 +23,11 @@ export const StatCard: React.FC<StatCardProps> = ({
   isPositive = true, 
   isDark,
   showChange = true,
-  icon
+  icon,
+  currentValue,
+  previousValue,
+  showTrendComparison = false,
+  percentageChange
 }) => {
   const formatValue = (rawValue: string): string => {
     const numericValue = Number(rawValue);
@@ -28,6 +38,41 @@ export const StatCard: React.FC<StatCardProps> = ({
       maximumFractionDigits: hasDecimals ? 2 : 0,
     }).format(numericValue);
   };
+
+  // Determine trend icon and color based on comparison
+  const getTrendIcon = () => {
+    if (!showTrendComparison || currentValue === undefined || previousValue === undefined) {
+      return null;
+    }
+
+    if (currentValue > previousValue) {
+      return {
+        icon: <TrendingUp className="w-3 h-3" />,
+        color: 'text-green-500',
+        bgColor: isDark ? 'bg-green-500/10' : 'bg-green-50',
+        borderColor: isDark ? 'border-green-600' : 'border-green-200',
+        textColor: isDark ? 'text-green-300' : 'text-green-700'
+      };
+    } else if (currentValue < previousValue) {
+      return {
+        icon: <TrendingDown className="w-3 h-3" />,
+        color: 'text-red-500',
+        bgColor: isDark ? 'bg-red-500/10' : 'bg-red-50',
+        borderColor: isDark ? 'border-red-600' : 'border-red-200',
+        textColor: isDark ? 'text-red-300' : 'text-red-700'
+      };
+    } else {
+      return {
+        icon: <Minus className="w-3 h-3" />,
+        color: 'text-gray-500',
+        bgColor: isDark ? 'bg-gray-500/10' : 'bg-gray-50',
+        borderColor: isDark ? 'border-gray-600' : 'border-gray-200',
+        textColor: isDark ? 'text-gray-300' : 'text-gray-700'
+      };
+    }
+  };
+
+  const trendData = getTrendIcon();
 
   return (
     <div
@@ -90,6 +135,25 @@ export const StatCard: React.FC<StatCardProps> = ({
               <span className="text-xs truncate">{change}</span>
             </span>
            
+          </div>
+        ) : showTrendComparison && trendData ? (
+          // Show trend comparison instead of regular change
+          <div className="flex flex-col items-end gap-1">
+            <div
+              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-xs font-medium border ${trendData.bgColor} ${trendData.borderColor}`}
+            >
+              <span className={trendData.color}>
+                {trendData.icon}
+              </span>
+              {percentageChange !== undefined && (
+                <span className={`${trendData.textColor} text-xs font-medium`}>
+                  {percentageChange >= 0 ? '+' : ''}{percentageChange}%
+                </span>
+              )}
+            </div>
+            <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              from yesterday
+            </span>
           </div>
         ) : (
           <div className="h-4"></div>
