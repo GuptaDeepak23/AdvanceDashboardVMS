@@ -24,6 +24,10 @@ function Dashboard() {
   const [activeTab, setActiveTab] = useState('Day');
   const [activeMetricTab, setActiveMetricTab] = useState('Visitor Analytics');
   const [isDark, setIsDark] = useState(false);
+  const [filterType, setFilterType] = useState('daily');
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showTokenDebug, setShowTokenDebug] = useState(false);
 
   const [showAIFullScreen, setShowAIFullScreen] = useState(false);
   const [startDate, setStartDate] = useState('');
@@ -417,7 +421,7 @@ const fetchPurposeOfVisit = async () => {
 
 
 
-  // Transform visit by department data for DonutChart
+  // Transform visit by department data for DepartmentChart
   const transformedVisitByDepartment = useMemo(() => {
     if (!visitByDepartmentData || !Array.isArray(visitByDepartmentData)) {
       return [];
@@ -427,12 +431,9 @@ const fetchPurposeOfVisit = async () => {
     const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16'];
     
     return visitByDepartmentData.map((item: any, index: number) => ({
-      label: item.department_name || 'Unknown Department',
-      value: item.total_visitors || 0,
-      color: colors[index % colors.length],
-      department_name: item.department_name,
-      total_visitors: item.total_visitors,
-      percentage: item.percentage
+      department: item.department_name || 'Unknown Department',
+      visitor_count: item.total_visitors || 0,
+      color: colors[index % colors.length]
     }));
   }, [visitByDepartmentData]);
 
@@ -542,11 +543,65 @@ const fetchPurposeOfVisit = async () => {
       isDark ? 'bg-gray-900' : 'bg-gray-50'
       }`}
     >
-      <div className="smooth-content">
-        {/* Fixed Header */}
-        <div className={`sticky top-0 z-50 h-14 backdrop-blur-md border-b ${
-          isDark ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'
-        }`}>
+      {/* Token Debug Section - Remove this in production */}
+      <div className={`p-4 ${isDark ? 'bg-gray-800' : 'bg-yellow-50'} border-b ${isDark ? 'border-gray-700' : 'border-yellow-200'}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setShowTokenDebug(!showTokenDebug)}
+              className={`px-3 py-1 text-sm rounded ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-yellow-200 hover:bg-yellow-300'}`}
+            >
+              {showTokenDebug ? 'Hide' : 'Show'} Token Debug
+            </button>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Current Token: {localStorage.getItem('token') ? '✅ Present' : '❌ Missing'}
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              localStorage.removeItem('token');
+              window.location.reload();
+            }}
+            className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Clear Token & Reload
+          </button>
+        </div>
+        
+        {showTokenDebug && (
+          <div className="mt-3 p-3 bg-white dark:bg-gray-700 rounded border">
+            <div className="text-sm">
+              <div className="mb-2">
+                <strong>Token Type:</strong> {
+                  (() => {
+                    const token = localStorage.getItem('token');
+                    if (!token) return '❌ No Token';
+                    if (token.startsWith('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9')) return '✅ JWT Token';
+                    if (token.startsWith('eyJpdiI6')) return '❌ Encrypted Laravel Token';
+                    return '❓ Unknown Format';
+                  })()
+                }
+              </div>
+              <div className="mb-2">
+                <strong>Token Length:</strong> {localStorage.getItem('token')?.length || 0}
+              </div>
+              <div className="mb-2">
+                <strong>Token Preview:</strong> 
+                <code className="block mt-1 p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs break-all">
+                  {localStorage.getItem('token')?.substring(0, 100) + '...' || 'No token'}
+                </code>
+              </div>
+              <div className="text-xs text-gray-500">
+                💡 If you see "Encrypted Laravel Token", the getToken API is returning the wrong token type.
+                Protected APIs need JWT tokens to work.
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Header */}
+      <header className={`p-4 border-b ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
           <div className="p-6  h-full">
             <div className="flex items-center space-x-2 justify-between h-full">
               {/* Left Section */}
@@ -554,8 +609,8 @@ const fetchPurposeOfVisit = async () => {
                 <button 
                   onClick={() => window.history.back()}
                   className={`hidden sm:flex px-1 text-sm bg-blue-500 text-white  py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex items-center  ${
-                    isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
-                  }`}>
+                  isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
+                }`}>
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
@@ -564,8 +619,8 @@ const fetchPurposeOfVisit = async () => {
                 <button 
                   onClick={() => window.history.back()}
                   className={`sm:hidden px-1  flex  text-sm bg-blue-500 text-white  py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex  items-center  ${
-                    isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
-                  }`}>
+                  isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
+                }`}>
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
@@ -626,7 +681,7 @@ const fetchPurposeOfVisit = async () => {
               </div>
             </div>
           </div>
-        </div>
+        </header>
 
         {/* Main Content */}
         <div className="p-4 space-y-4">
@@ -832,14 +887,18 @@ const fetchPurposeOfVisit = async () => {
         )}
 
         
-        {/* AI Assistant Modal - Removed as AI is now integrated into System Alerts */}
+        
  
-          </>
-        )}
-        </div>
+      </>
+      
+      )}
       </div>
     </div>
   );
+
+
+  
 }
+
 
 export default Dashboard; 

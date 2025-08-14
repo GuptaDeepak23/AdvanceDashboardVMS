@@ -35,12 +35,43 @@ function App() {
           try {
             const tokenData = await getToken();
             console.log('getToken response:', tokenData); // Debug log
-            
+
             if (tokenData && tokenData.token) {
-              setLoadingMessage('Setting up dashboard...');
-              localStorage.setItem('token', tokenData.token);
-              console.log('Token received and stored successfully:', tokenData.token);
-              setIsAuthenticated(true);
+              // Check if this is a JWT token or encrypted Laravel token
+              const token = tokenData.token;
+              const isJWT = token.startsWith('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9');
+              const isEncrypted = token.startsWith('eyJpdiI6');
+              
+              console.log('Token analysis:', {
+                isJWT,
+                isEncrypted,
+                tokenLength: token.length,
+                tokenStart: token.substring(0, 50) + '...'
+              });
+
+              if (isJWT) {
+                setLoadingMessage('Setting up dashboard...');
+                localStorage.setItem('token', token);
+                console.log('✅ JWT Token received and stored successfully:', token);
+                setIsAuthenticated(true);
+              } else if (isEncrypted) {
+                console.error('❌ Wrong token type received: Encrypted Laravel token instead of JWT');
+                console.error('This token will NOT work with protected APIs. Need JWT token.');
+                
+                // Try to get token from localStorage as fallback
+                const existingToken = localStorage.getItem('token');
+                if (existingToken && existingToken.startsWith('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9')) {
+                  console.log('✅ Using existing JWT token from localStorage');
+                  setIsAuthenticated(true);
+                } else {
+                  console.error('❌ No valid JWT token available - API calls will fail');
+                  // Still show dashboard but warn user
+                  setIsAuthenticated(true);
+                }
+              } else {
+                console.error('❌ Unknown token format received:', token);
+                setIsAuthenticated(true); // Still show dashboard
+              }
             } else {
               console.error('getToken returned invalid data:', tokenData);
               // Try to get token from localStorage as fallback
