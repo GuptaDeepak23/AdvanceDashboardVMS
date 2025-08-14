@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import nodataVideo from '../assets/nodata.mp4';
 
 interface DonutChartProps {
   data: Array<{
@@ -23,30 +24,23 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, isDark }) => {
 
   if (data.length === 0 || total === 0) {
     return (
-      <div className={`rounded-lg shadow-xl border p-4 h-full  ${
-        isDark 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
-      }`}>
-        <h3 className={`text-lg font-semibold mb-4 ${
+      <div >
+       
+        
+        <div className="flex-1 flex flex-col items-start  justify-center py-4">
+          <div  >
+        <h3 className={`text-lg ml-2 font-semibold mb-4 ${
           isDark ? 'text-white' : 'text-gray-900'
         }`}>Visitor Purposes</h3>
-        <div className={`rounded-lg shadow-xl border p-4 ${
-        isDark 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-100'
-      }`}>
-        
-        <div className="flex-1 flex items-center justify-center py-4">
-        <video 
-     src="public/nodata.mp4"  // ✅ Use a real path
-     autoPlay 
-     loop 
-     muted 
-     className="w-full h-full object-contain rounded-lg"
-   />
-       </div>
-      </div>
+        </div>
+          <video 
+            src={nodataVideo}
+            autoPlay 
+            loop 
+            muted 
+            className="w-full h-full object-contain rounded-lg"
+          />
+        </div>
       </div>
     );
   }

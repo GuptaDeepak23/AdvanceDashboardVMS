@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import nodataVideo from '../assets/nodata.mp4';
 
 interface DepartmentChartProps {
   data: Array<{
-    label: string;
-    value: number;
+    department: string;
+    visitor_count: number;
     color: string;
   }>;
   isDark?: boolean;
@@ -18,7 +19,7 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
     showAbove: boolean;
   }>({ show: false, content: '', x: 0, y: 0, showAbove: true });
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const total = data.reduce((sum, item) => sum + item.visitor_count, 0);
   let cumulativePercentage = 0;
 
   if (data.length === 0 || total === 0) {
@@ -33,7 +34,7 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
         }`}>Visits by Department</h3>
         <div className="flex-1 flex items-center justify-center py-4">
         <video 
-     src="public/nodata.mp4"  // ✅ Use a real path
+     src={nodataVideo}  // ✅ Use a real path
      autoPlay 
      loop 
      muted 
@@ -56,7 +57,7 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
   };
 
   const handleMouseEnter = (e: React.MouseEvent, item: any, percentage: number) => {
-    const content = `${item.label}: ${item.value} visits (${Math.round(percentage * 100)}%)`;
+    const content = `${item.department}: ${item.visitor_count} visits (${Math.round(percentage * 100)}%)`;
     
     setTooltip({
       show: true,
@@ -96,7 +97,7 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
         <div className="relative flex-shrink-0 mb-1">
           <svg className="w-56 h-56 transform -rotate-90" viewBox="-12 0 100 80 ">
             {data.map((item, index) => {
-              const percentage = item.value / total;
+              const percentage = item.visitor_count / total;
               const startPercentage = cumulativePercentage;
               cumulativePercentage += percentage;
               
@@ -110,7 +111,7 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
                     onMouseLeave={handleMouseLeave}
                     onMouseMove={handleMouseMove}
                   />
-                  <title>{`${item.label}: ${item.value} visits (${Math.round(percentage * 100)}%)`}</title>
+                  <title>{`${item.department}: ${item.visitor_count} visits (${Math.round(percentage * 100)}%)`}</title>
                 </g>
               );
             })}
@@ -149,13 +150,13 @@ export const DepartmentChart: React.FC<DepartmentChartProps> = ({ data, isDark }
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm font-medium ${
                     isDark ? 'text-white' : 'text-gray-900'
-                  }`}>{item.label}</div>
+                  }`}>{item.department}</div>
                   <div className={`text-xs ${
                     isDark ? 'text-gray-400' : 'text-gray-500'
-                  }`}>{item.value} visits</div>
+                  }`}>{item.visitor_count} visits</div>
                 </div>
                 <div className="absolute left-full ml-2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                  {item.label}: {item.value} visits ({Math.round((item.value / total) * 100)}%)
+                  {item.department}: {item.visitor_count} visits ({Math.round((item.visitor_count / total) * 100)}%)
                 </div>
               </div>
             ))}

@@ -1,4 +1,5 @@
-import { useState } from "react"
+import React, { useState } from 'react';
+import nodataVideo from '../assets/nodata.mp4';
 import { Grid2X2, TrendingUp } from "lucide-react"
 import { CartesianGrid, LabelList, Line, LineChart, XAxis } from "recharts"
 
@@ -113,7 +114,7 @@ export function ChartLineLabel({ isDark = false , weeklydata , monthlydata }: Da
           </div>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-64">
-          <video src="/nodata.mp4" autoPlay loop muted className="w-full h-full object-contain rounded-lg" />
+          <video src={nodataVideo} autoPlay loop muted className="w-full h-full object-contain rounded-lg" />
         </CardContent>
       </Card>
     );

@@ -4,6 +4,7 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/ksplvms_uat/dashboard/', // Base path for UAT deployment
   plugins: [react()],
   resolve: {
     alias: {

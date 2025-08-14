@@ -1,5 +1,16 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Loader2 } from 'lucide-react';
+
+// Loading spinner component that adapts to theme
+const LoadingSpinner: React.FC<{ isDark: boolean }> = ({ isDark }) => (
+  <div className="flex items-center justify-center">
+    <Loader2 
+      className={`w-5 h-5 animate-spin ${
+        isDark ? 'text-gray-300' : 'text-gray-600'
+      }`} 
+    />
+  </div>
+);
 
 interface StatCardProps {
   title: string;
@@ -38,6 +49,9 @@ export const StatCard: React.FC<StatCardProps> = ({
       maximumFractionDigits: hasDecimals ? 2 : 0,
     }).format(numericValue);
   };
+
+  // Check if the value is loading
+  const isLoading = value === "Loading...";
 
   // Determine trend icon and color based on comparison
   const getTrendIcon = () => {
@@ -100,13 +114,17 @@ export const StatCard: React.FC<StatCardProps> = ({
 
       {/* Middle section - Value */}
       <div className="flex-1 flex justify-between items-center gap-2 px-2">
-        <p
-          className={`text-xl font-bold tracking-tight ${
-            isDark ? 'text-white' : 'text-gray-900'
-          }`}
-        >
-          {formatValue(value)}
-        </p>
+        {isLoading ? (
+          <LoadingSpinner isDark={isDark} />
+        ) : (
+          <p
+            className={`text-xl font-bold tracking-tight ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}
+          >
+            {formatValue(value)}
+          </p>
+        )}
         <div className="flex-shrink-0 p-2 pt-0">
         {showChange && change ? (
           <div

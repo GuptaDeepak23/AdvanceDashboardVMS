@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import nodataVideo from '../assets/nodata.mp4';
 import { Search } from 'lucide-react';
 
 interface PendingCheckout {
@@ -58,7 +59,7 @@ export const PendingCheckoutTable: React.FC<PendingCheckoutTableProps> = ({ data
       {filteredData.length === 0 && searchTerm === '' && (
         <div className="flex-1 flex items-center justify-center py-4">
         <video 
-     src="public/nodata.mp4"  // ✅ Use a real path
+     src={nodataVideo}  // ✅ Use a real path
      autoPlay 
      loop 
      muted 

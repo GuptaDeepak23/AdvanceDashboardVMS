@@ -1,6 +1,7 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
+import nodataVideo from '../assets/nodata.mp4';
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export const description = "A stacked bar chart with visitor tracking data";
@@ -113,7 +114,7 @@ export function ChartTooltipAdvanced({
       <div className="h-80 flex items-center justify-center overflow-x-auto md:overflow-x-hidden">
   {data.length === 0 || data.every(item => item.checkins === 0 && item.checkouts === 0) ? (
     <video 
-      src="Public/nodata.mp4"  
+      src={nodataVideo}  
       autoPlay 
       loop 
       muted 

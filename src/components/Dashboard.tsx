@@ -56,7 +56,7 @@ function Dashboard() {
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/login'); // This will work with HashRouter as it's relative
   };
 
   
@@ -551,21 +551,25 @@ const fetchPurposeOfVisit = async () => {
             <div className="flex items-center space-x-2 justify-between h-full">
               {/* Left Section */}
               <div className="  ">
-                <button className={`hidden sm:flex px-1 text-sm bg-blue-500 text-white  py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex items-center  ${
-                  isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
-                }`}>
+                <button 
+                  onClick={() => window.history.back()}
+                  className={`hidden sm:flex px-1 text-sm bg-blue-500 text-white  py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex items-center  ${
+                    isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
+                  }`}>
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                   Go Back
                 </button>
-                <button className={`sm:hidden px-1  flex  text-sm bg-blue-500 text-white  py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex  items-center  ${
-                  isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
-                }`}>
+                <button 
+                  onClick={() => window.history.back()}
+                  className={`sm:hidden px-1  flex  text-sm bg-blue-500 text-white  py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex  items-center  ${
+                    isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
+                  }`}>
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  
+                  Go Back
                 </button>
                 
               </div>

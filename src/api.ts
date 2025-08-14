@@ -1,7 +1,16 @@
-const proxyUrl = "http://localhost:8080/";
-const baseUrl = "https://kanishkacrm.com/ksplvms_uat/public/api/v1/";
-const tokenUrl = `https://kanishkacrm.com/ksplvms_uat/public/getToken`;
+import { currentConfig } from './config';
 
+// ===== CONFIGURATION =====
+// Configuration is now managed in src/config.ts
+// To switch environments, change ENVIRONMENT in config.ts
+const { proxyUrl, baseUrl, tokenUrl } = currentConfig;
+
+// ===== LOCAL DEVELOPMENT SETUP =====
+// To run locally:
+// 1. In src/config.ts, set ENVIRONMENT = 'local'
+// 2. Install cors-anywhere: npm install -g cors-anywhere
+// 3. Start cors-anywhere: cors-anywhere
+// 4. Run your React app: npm run dev
 
 interface ApiResponse {
   token?: string;
@@ -10,6 +19,20 @@ interface ApiResponse {
 
 export const fetchWithToken = async (endpoint: string): Promise<ApiResponse> => {
   const token = localStorage.getItem("token");
+  
+  // Debug logging
+  console.log('=== API CALL DEBUG ===');
+  console.log('Endpoint:', endpoint);
+  console.log('Token exists:', !!token);
+  console.log('Token length:', token ? token.length : 'N/A');
+  console.log('Token value:', token);
+  console.log('Full URL:', `${proxyUrl}${baseUrl}${endpoint}`);
+  console.log('Authorization header:', `Bearer ${token}`);
+  console.log('All headers:', {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json"
+  });
+  console.log('=====================');
 
   const response = await fetch(`${proxyUrl}${baseUrl}${endpoint}`, {
     headers: {
@@ -17,12 +40,15 @@ export const fetchWithToken = async (endpoint: string): Promise<ApiResponse> => 
       "Content-Type": "application/json"
     }
   });
-console.log(response);
+  
+  console.log('Response status:', response.status);
+  console.log('Response headers:', response.headers);
+  
   return await response.json();
 };
 
-
-
+// ===== AUTHENTICATION =====
+// For LOCAL DEVELOPMENT: Keep this function to test login functionality
 export const loginUser = async (email: string, password: string): Promise<ApiResponse> => {
   const response = await fetch(`${proxyUrl}${baseUrl}login`, {
     method: "POST",
@@ -35,6 +61,25 @@ export const loginUser = async (email: string, password: string): Promise<ApiRes
   return await response.json();
 };
 
+// ===== TOKEN MANAGEMENT =====
+// This function gets the token from VMS system - use this in production
+export const getToken = async (): Promise<ApiResponse> => {
+  // Direct call to VMS API - no proxy needed for token retrieval
+  // Add headers to mimic external request (like Postman)
+  const response = await fetch(tokenUrl, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept': 'application/json',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    }
+  });
+  console.log('getToken response:', response);
+  return await response.json();
+};
+
+// ===== API ENDPOINTS =====
 // fetch stat card data
 export const fetchStatCardData = async (filterType: string): Promise<ApiResponse> => {
   const endpoint = `count-for-current-date?filter_type=${filterType}`;
@@ -109,6 +154,5 @@ export const getPreRegisterDifferenceTrend = async (): Promise<ApiResponse> => {
 
 
 //getToken api
-
 
 

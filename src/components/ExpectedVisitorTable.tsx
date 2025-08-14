@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
+import nodataVideo from '../assets/nodata.mp4';
 
 interface ExpectedVisitor {
   
@@ -57,7 +58,7 @@ export const ExpectedVisitorTable: React.FC<ExpectedVisitorTableProps> = ({ data
       {filteredData.length === 0 && searchTerm === '' && (
         <div className="flex-1 flex items-center justify-center py-4">
          <video 
-      src="public/nodata.mp4"  // ✅ Use a real path
+      src={nodataVideo}  // ✅ Use a real path
       autoPlay 
       loop 
       muted 
