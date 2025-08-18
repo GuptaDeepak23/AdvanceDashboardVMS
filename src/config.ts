@@ -8,14 +8,14 @@ export const config = {
     showLoginPage: true,
     proxyUrl: "http://localhost:8080/",
     baseUrl: "https://kanishkacrm.com/ksplvms_uat/public/api/v1/",
-    tokenUrl: "https://kanishkacrm.com/ksplvms_uat/public/api/v1/getToken",
+    tokenUrl: "https://kanishkacrm.com/ksplvms_uat/public/getToken",
     useProxy: true
   },
   production: {
     showLoginPage: false,
     proxyUrl: "",
     baseUrl: "https://kanishkacrm.com/ksplvms_uat/public/api/v1/",
-    tokenUrl: "https://kanishkacrm.com/ksplvms_uat/public/api/v1/getToken",
+    tokenUrl: "https://kanishkacrm.com/ksplvms_uat/public/getToken",
     useProxy: false
   }
 };

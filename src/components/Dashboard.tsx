@@ -27,7 +27,7 @@ function Dashboard() {
   const [filterType, setFilterType] = useState('daily');
   const [showDateModal, setShowDateModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showTokenDebug, setShowTokenDebug] = useState(false);
+
 
   const [showAIFullScreen, setShowAIFullScreen] = useState(false);
   const [startDate, setStartDate] = useState('');
@@ -543,104 +543,46 @@ const fetchPurposeOfVisit = async () => {
       isDark ? 'bg-gray-900' : 'bg-gray-50'
       }`}
     >
-      {/* Token Debug Section - Remove this in production */}
-      <div className={`p-4 ${isDark ? 'bg-gray-800' : 'bg-yellow-50'} border-b ${isDark ? 'border-gray-700' : 'border-yellow-200'}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setShowTokenDebug(!showTokenDebug)}
-              className={`px-3 py-1 text-sm rounded ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-yellow-200 hover:bg-yellow-300'}`}
-            >
-              {showTokenDebug ? 'Hide' : 'Show'} Token Debug
-            </button>
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Current Token: {localStorage.getItem('token') ? '✅ Present' : '❌ Missing'}
-            </span>
-          </div>
-          <button
-            onClick={() => {
-              localStorage.removeItem('token');
-              window.location.reload();
-            }}
-            className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Clear Token & Reload
-          </button>
-        </div>
-        
-        {showTokenDebug && (
-          <div className="mt-3 p-3 bg-white dark:bg-gray-700 rounded border">
-            <div className="text-sm">
-              <div className="mb-2">
-                <strong>Token Type:</strong> {
-                  (() => {
-                    const token = localStorage.getItem('token');
-                    if (!token) return '❌ No Token';
-                    if (token.startsWith('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9')) return '✅ JWT Token';
-                    if (token.startsWith('eyJpdiI6')) return '❌ Encrypted Laravel Token';
-                    return '❓ Unknown Format';
-                  })()
-                }
-              </div>
-              <div className="mb-2">
-                <strong>Token Length:</strong> {localStorage.getItem('token')?.length || 0}
-              </div>
-              <div className="mb-2">
-                <strong>Token Preview:</strong> 
-                <code className="block mt-1 p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs break-all">
-                  {localStorage.getItem('token')?.substring(0, 100) + '...' || 'No token'}
-                </code>
-              </div>
-              <div className="text-xs text-gray-500">
-                💡 If you see "Encrypted Laravel Token", the getToken API is returning the wrong token type.
-                Protected APIs need JWT tokens to work.
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+
 
       {/* Header */}
       <header className={`p-4 border-b ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-          <div className="p-6  h-full">
-            <div className="flex items-center space-x-2 justify-between h-full">
+        <div className="flex items-center justify-between">
               {/* Left Section */}
-              <div className="  ">
+          <div>
                 <button 
                   onClick={() => window.history.back()}
-                  className={`hidden sm:flex px-1 text-sm bg-blue-500 text-white  py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex items-center  ${
+              className={`hidden sm:flex px-3 py-2 text-sm bg-blue-500 text-white rounded-md font-medium hover:bg-blue-600 transition-colors items-center ${
                   isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
                 }`}>
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                   Go Back
                 </button>
                 <button 
                   onClick={() => window.history.back()}
-                  className={`sm:hidden px-1  flex  text-sm bg-blue-500 text-white  py-2 rounded-md font-medium hover:bg-blue-600 transition-colors flex  items-center  ${
+              className={`sm:hidden px-3 py-2 text-sm bg-blue-500 text-white rounded-md font-medium hover:bg-blue-600 transition-colors items-center ${
                   isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
                 }`}>
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                   Go Back
                 </button>
-                
               </div>
 
-              <div className="hidden sm:block   transform   mr-10 ">
-                <p className={` sm:text-xl md:text-2xl font-semibold ${
+          {/* Center Section - Title */}
+          <div className="hidden sm:block">
+            <p className={`text-lg md:text-xl font-semibold ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}>
                   Real-time visitor tracking and analytics
                 </p>
               </div>
-              {/* Center Section - Title */}
-              
 
               {/* Right Section - Filters, Theme Toggle, AI, and Logout */}
-              <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
               <button
                   onClick={() => {
                     setShowAIFullScreen(!showAIFullScreen);
@@ -678,7 +620,6 @@ const fetchPurposeOfVisit = async () => {
                 >
                   Logout
                 </button> */}
-              </div>
             </div>
           </div>
         </header>
