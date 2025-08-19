@@ -661,7 +661,7 @@ const fetchPurposeOfVisit = async () => {
             value={isLoadingStats ? "Loading..." : (statCardData?.total_pre_registers?.toString() || "0")}
             isDark={isDark}
             icon={<UserCheck className="w-4 h-4 text-green-600" />}
-            showTrendComparison={true}
+            showTrendComparison={activeTab === 'Day'}
             currentValue={preRegisterDifferenceTrendData?.pre_register_trend?.today_completion_rate || 0}
             previousValue={preRegisterDifferenceTrendData?.pre_register_trend?.yesterday_completion_rate || 0}
             percentageChange={preRegisterDifferenceTrendData?.pre_register_trend?.percentage_change || 0}
@@ -671,7 +671,7 @@ const fetchPurposeOfVisit = async () => {
             value={isLoadingStats ? "Loading..." : (statCardData?.total_checkin_visitors?.toString() || "0")}
             isDark={isDark}
             icon={<UserCheck className="w-4 h-4 text-blue-600" />}
-            showTrendComparison={true}
+            showTrendComparison={activeTab === 'Day'}
             currentValue={trendComparisonData?.today_checkins || 0}
             previousValue={trendComparisonData?.yesterday_checkins || 0}
             percentageChange={trendComparisonData?.checkin_change_percentage || 0}
@@ -713,19 +713,6 @@ const fetchPurposeOfVisit = async () => {
                 }`}
               >
                 Visitor Analytics
-              </button>
-              <button 
-                onClick={() => {
-                  setActiveMetricTab('Department Metrics');
-                  setShowAIFullScreen(false);
-                }}
-                className={`px-3 md:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors ${
-                  activeMetricTab === 'Department Metrics'
-                    ? 'bg-amber-600 text-white hover:bg-amber-700'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Department Metrics
               </button>
               <button 
                 onClick={() => {
@@ -786,16 +773,6 @@ const fetchPurposeOfVisit = async () => {
           </div>
         )}
 
-        {activeMetricTab === 'Department Metrics' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className={`rounded-lg shadow-lg border h-86 ${
-              isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-            }`}>
-              <DepartmentChart data={isLoadingVisitByDepartment ? [] : transformedVisitByDepartment} isDark={isDark} />
-            </div>
-          </div>
-        )}
-
         {activeMetricTab === 'Visitor Management' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className={`rounded-lg shadow-lg border h-86 overflow-hidden ${
@@ -808,6 +785,12 @@ const fetchPurposeOfVisit = async () => {
               isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
             }`}>
               <PendingCheckoutTable data={isLoadingPendingCheckouts ? [] : (pendingCheckoutData || [])} isDark={isDark} />
+            </div>
+
+            <div className={`rounded-lg shadow-lg border h-86 ${
+              isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            }`}>
+              <DepartmentChart data={isLoadingVisitByDepartment ? [] : transformedVisitByDepartment} isDark={isDark} />
             </div>
           </div>
         )}

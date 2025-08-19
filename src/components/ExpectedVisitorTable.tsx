@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
-import nodataVideo from '../assets/nodata.mp4';
+import nodataVideo from '../assets/nodata1.webm';
 
 interface ExpectedVisitor {
   
@@ -56,14 +56,15 @@ export const ExpectedVisitorTable: React.FC<ExpectedVisitorTableProps> = ({ data
       </div>
       
       {filteredData.length === 0 && searchTerm === '' && (
-        <div className="flex-1 flex items-center justify-center py-4">
-         <video 
-      src={nodataVideo}  // ✅ Use a real path
-      autoPlay 
-      loop 
-      muted 
-      className="w-full h-full object-contain rounded-lg"
-    />
+        <div className="flex-1 flex items-center justify-center py-2 h-[280px] md:h-[300px] overflow-hidden">
+          <video 
+            src={nodataVideo}
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="w-full h-full object-contain rounded-lg pointer-events-none select-none bg-transparent"
+          />
         </div>
       )}
       

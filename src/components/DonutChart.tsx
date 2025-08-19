@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import nodataVideo from '../assets/nodata.mp4';
+import nodataVideo from '../assets/nodata1.webm';
 
 interface DonutChartProps {
   data: Array<{

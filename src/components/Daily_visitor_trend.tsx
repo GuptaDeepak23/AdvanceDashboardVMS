@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import nodataVideo from '../assets/nodata.mp4';
+import nodataVideo from '../assets/nodata1.webm';
 import { Grid2X2, TrendingUp } from "lucide-react"
-import { CartesianGrid, LabelList, Line, LineChart, XAxis } from "recharts"
+import { CartesianGrid, LabelList, Line, LineChart, XAxis, YAxis, Area } from "recharts"
 
 import {
   Card,
@@ -121,7 +121,22 @@ export function ChartLineLabel({ isDark = false , weeklydata , monthlydata }: Da
   }
 
   // Calculate trend
-  
+  const maxVisitors = Math.max(...chartData.map((d: any) => Number(d.visitors) || 0));
+  const CustomDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    const isMax = (payload?.visitors || 0) === maxVisitors && maxVisitors > 0;
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={isMax ? 5.5 : 3.5}
+        stroke="hsl(var(--background))"
+        strokeWidth={2}
+        fill="hsl(var(--chart-1))"
+        opacity={isMax ? 1 : 0.9}
+      />
+    );
+  };
 
   // Get description based on filter
   const getDescription = () => {
@@ -177,16 +192,22 @@ export function ChartLineLabel({ isDark = false , weeklydata , monthlydata }: Da
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-64 w-full">
+        <ChartContainer config={chartConfig} className="h-72 sm:h-64 w-full">
           <LineChart
             accessibilityLayer
             data={chartData}
             margin={{
-              top: 20,
-              left: 12,
-              right: 12,
+              top: 16,
+              left: 28,
+              right: 16,
             }}
           >
+            <defs>
+              <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
+              </linearGradient>
+            </defs>
             <CartesianGrid 
               vertical={false} 
               strokeDasharray="3 3"
@@ -199,34 +220,47 @@ export function ChartLineLabel({ isDark = false , weeklydata , monthlydata }: Da
               tickMargin={8}
               className={isDark ? "fill-gray-400" : "fill-gray-600"}
             />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              width={28}
+              tick={{ fill: isDark ? '#9ca3af' : '#6b7280', fontSize: 11 }}
+            />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
+            />
+            <Area
+              type="monotone"
+              dataKey="visitors"
+              stroke="none"
+              fill="url(#trendFill)"
+              isAnimationActive={false}
             />
             <Line
               dataKey="visitors"
               type="monotone"
               stroke="hsl(var(--chart-1))"
               strokeWidth={3}
-              dot={{
-                fill: "hsl(var(--chart-1))",
-                strokeWidth: 2,
-                stroke: "hsl(var(--background))",
-                r: 4,
-              }}
-              activeDot={{
-                r: 6,
-                stroke: "hsl(var(--chart-1))",
-                strokeWidth: 2,
-                fill: "hsl(var(--background))",
-              }}
+              dot={CustomDot}
+              activeDot={{ r: 6, stroke: "hsl(var(--chart-1))", strokeWidth: 2, fill: "hsl(var(--background))" }}
             >
               <LabelList
+                dataKey="visitors"
                 position="top"
-                offset={12}
+                offset={10}
                 className={isDark ? "fill-gray-300" : "fill-gray-700"}
                 fontSize={11}
                 fontWeight="500"
+                content={(props: any) => {
+                  const { x, y, value } = props;
+                  if (!value || value === 0) return null;
+                  return (
+                    <text x={x} y={(y || 0) - 6} textAnchor="middle" className={isDark ? "fill-gray-300" : "fill-gray-700"}>
+                      {value}
+                    </text>
+                  );
+                }}
               />
             </Line>
           </LineChart>

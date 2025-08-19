@@ -1,6 +1,6 @@
 // ===== ENVIRONMENT CONFIGURATION =====
 // Change this variable to switch between environments
-export const ENVIRONMENT: 'local' | 'production' = 'production';
+export const ENVIRONMENT: 'local' | 'production' = 'local';
 
 // Configuration object
 export const config = {
