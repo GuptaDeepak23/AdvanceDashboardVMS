@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  web:
+    build: .
+    image: advance-dashboard-vms:latest
+    container_name: advance-dashboard-vms
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    # If your app calls external APIs with CORS and you need a proxy, you could
+    # add it here later and network them together.
+
+
