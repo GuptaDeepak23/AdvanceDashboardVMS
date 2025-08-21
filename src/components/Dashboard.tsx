@@ -555,14 +555,14 @@ const fetchPurposeOfVisit = async () => {
               className={`hidden sm:flex px-3 py-2 text-sm bg-blue-500 text-white rounded-md font-medium hover:bg-blue-600 transition-colors items-center ${
                   isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
                 }`}>
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-2 h-2 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                   Go Back
                 </button>
                 <button 
                   onClick={() => window.history.back()}
-              className={`sm:hidden px-3 py-2 text-sm bg-blue-500 text-white rounded-md font-medium hover:bg-blue-600 transition-colors items-center ${
+              className={`w-28 flex h-10 sm:hidden px-3 py-2 text-sm bg-blue-500 text-white rounded-md font-medium hover:bg-blue-600 transition-colors items-center ${
                   isDark ? 'hover:bg-blue-400' : 'hover:bg-blue-600'
                 }`}>
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
